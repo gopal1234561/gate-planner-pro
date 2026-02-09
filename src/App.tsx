@@ -18,6 +18,7 @@ import MockTestsPage from "@/pages/MockTestsPage";
 import ProgressPage from "@/pages/ProgressPage";
 import FocusTimerPage from "@/pages/FocusTimerPage";
 import ProfilePage from "@/pages/ProfilePage";
+import RevisionTrackerPage from "@/pages/RevisionTrackerPage";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -73,6 +74,7 @@ const AppRoutes = () => {
       <Route path="/subjects" element={<ProtectedRoute><SubjectsPage /></ProtectedRoute>} />
       <Route path="/tasks" element={<ProtectedRoute><TasksPage /></ProtectedRoute>} />
       <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />
+      <Route path="/revisions" element={<ProtectedRoute><RevisionTrackerPage /></ProtectedRoute>} />
       <Route path="/mock-tests" element={<ProtectedRoute><MockTestsPage /></ProtectedRoute>} />
       <Route path="/progress" element={<ProtectedRoute><ProgressPage /></ProtectedRoute>} />
       <Route path="/focus-timer" element={<ProtectedRoute><FocusTimerPage /></ProtectedRoute>} />

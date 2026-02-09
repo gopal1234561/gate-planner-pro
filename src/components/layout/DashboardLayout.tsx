@@ -17,6 +17,7 @@ import {
   Sun,
   Moon,
   Timer,
+  RefreshCw,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CountdownTimer } from '@/components/CountdownTimer';
@@ -30,6 +31,7 @@ const navItems = [
   { icon: BookOpen, label: 'Subjects', path: '/subjects' },
   { icon: CheckSquare, label: 'Tasks', path: '/tasks' },
   { icon: Calendar, label: 'Calendar', path: '/calendar' },
+  { icon: RefreshCw, label: 'Revisions', path: '/revisions' },
   { icon: FileText, label: 'Mock Tests', path: '/mock-tests' },
   { icon: TrendingUp, label: 'Progress', path: '/progress' },
   { icon: Timer, label: 'Focus Timer', path: '/focus-timer' },
