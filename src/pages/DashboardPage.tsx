@@ -15,6 +15,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { format } from 'date-fns';
 import { Progress } from '@/components/ui/progress';
+import { StressBurstMode } from '@/components/StressBurstMode';
 
 interface DashboardStats {
   todayTasks: number;
@@ -217,6 +218,9 @@ const DashboardPage: React.FC = () => {
             </p>
           )}
         </GlassCard>
+
+        {/* Stress Burst Mode */}
+        <StressBurstMode />
       </div>
     </DashboardLayout>
   );
