@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import {
   Dialog,
@@ -8,12 +8,23 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
+import { Game2048 } from '@/components/games/Game2048';
+import { GameSudoku } from '@/components/games/GameSudoku';
+import { GameReaction } from '@/components/games/GameReaction';
+import { GameMemory } from '@/components/games/GameMemory';
+
+interface GameInfo {
+  id: string;
+  label: string;
+  component: React.FC | null;
+}
 
 interface ModeCard {
   emoji: string;
   title: string;
   description: string;
   features: string[];
+  games: GameInfo[];
   gradient: string;
   borderGradient: string;
 }
@@ -24,6 +35,11 @@ const modes: ModeCard[] = [
     title: 'Focus Mode',
     description: 'Sharpen concentration with strategic games.',
     features: ['Sudoku', '2048', 'Chess'],
+    games: [
+      { id: 'sudoku', label: 'Sudoku', component: GameSudoku },
+      { id: '2048', label: '2048', component: Game2048 },
+      { id: 'chess', label: 'Chess', component: null },
+    ],
     gradient: 'from-violet-500/10 to-indigo-500/10',
     borderGradient: 'from-violet-500/40 via-indigo-500/30 to-violet-500/10',
   },
@@ -32,6 +48,10 @@ const modes: ModeCard[] = [
     title: 'Energy Mode',
     description: 'Boost alertness with fast reaction challenges.',
     features: ['Reaction games', 'Tap games'],
+    games: [
+      { id: 'reaction', label: 'Reaction Time', component: GameReaction },
+      { id: 'tap', label: 'Tap Game', component: null },
+    ],
     gradient: 'from-amber-500/10 to-orange-500/10',
     borderGradient: 'from-amber-500/40 via-orange-500/30 to-amber-500/10',
   },
@@ -40,6 +60,10 @@ const modes: ModeCard[] = [
     title: 'Calm Mode',
     description: 'Relax your mind with peaceful activities.',
     features: ['Zen Garden', 'Coloring'],
+    games: [
+      { id: 'zen', label: 'Zen Garden', component: null },
+      { id: 'coloring', label: 'Coloring', component: null },
+    ],
     gradient: 'from-emerald-500/10 to-teal-500/10',
     borderGradient: 'from-emerald-500/40 via-teal-500/30 to-emerald-500/10',
   },
@@ -48,6 +72,10 @@ const modes: ModeCard[] = [
     title: 'Brain Warmup',
     description: 'Activate your brain with light puzzles.',
     features: ['Memory games', 'Logic puzzles'],
+    games: [
+      { id: 'memory', label: 'Memory Cards', component: GameMemory },
+      { id: 'logic', label: 'Logic Puzzles', component: null },
+    ],
     gradient: 'from-pink-500/10 to-rose-500/10',
     borderGradient: 'from-pink-500/40 via-rose-500/30 to-pink-500/10',
   },
@@ -64,6 +92,7 @@ const cardVariants = {
 
 export const StressBurstMode: React.FC = () => {
   const [selectedMode, setSelectedMode] = useState<ModeCard | null>(null);
+  const [activeGame, setActiveGame] = useState<GameInfo | null>(null);
   const [ripple, setRipple] = useState<{ x: number; y: number; id: number } | null>(null);
 
   const handleStart = (e: React.MouseEvent<HTMLButtonElement>, mode: ModeCard) => {
@@ -71,14 +100,19 @@ export const StressBurstMode: React.FC = () => {
     setRipple({ x: e.clientX - rect.left, y: e.clientY - rect.top, id: Date.now() });
     setTimeout(() => {
       setSelectedMode(mode);
+      setActiveGame(null);
       setRipple(null);
     }, 300);
+  };
+
+  const handleClose = () => {
+    setSelectedMode(null);
+    setActiveGame(null);
   };
 
   return (
     <>
       <section className="w-full py-12">
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -93,7 +127,6 @@ export const StressBurstMode: React.FC = () => {
           </p>
         </motion.div>
 
-        {/* Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {modes.map((mode, i) => (
             <motion.div
@@ -105,15 +138,12 @@ export const StressBurstMode: React.FC = () => {
               whileHover={{ scale: 1.03, y: -4 }}
               className="group relative"
             >
-              {/* Gradient border */}
               <div
                 className={cn(
                   'absolute -inset-[1px] rounded-2xl bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-500',
                   mode.borderGradient
                 )}
               />
-
-              {/* Card */}
               <div
                 className={cn(
                   'relative rounded-2xl p-6 h-full flex flex-col',
@@ -121,7 +151,6 @@ export const StressBurstMode: React.FC = () => {
                   'transition-shadow duration-300 group-hover:shadow-xl'
                 )}
               >
-                {/* Emoji Icon */}
                 <div
                   className={cn(
                     'w-12 h-12 rounded-xl flex items-center justify-center text-2xl mb-4',
@@ -131,16 +160,8 @@ export const StressBurstMode: React.FC = () => {
                 >
                   {mode.emoji}
                 </div>
-
-                {/* Title */}
                 <h3 className="font-semibold text-lg text-foreground mb-1">{mode.title}</h3>
-
-                {/* Description */}
-                <p className="text-muted-foreground text-sm mb-4 leading-relaxed">
-                  {mode.description}
-                </p>
-
-                {/* Features */}
+                <p className="text-muted-foreground text-sm mb-4 leading-relaxed">{mode.description}</p>
                 <ul className="space-y-1.5 mb-6 flex-1">
                   {mode.features.map((f) => (
                     <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -149,8 +170,6 @@ export const StressBurstMode: React.FC = () => {
                     </li>
                   ))}
                 </ul>
-
-                {/* Start Button */}
                 <button
                   onClick={(e) => handleStart(e, mode)}
                   className={cn(
@@ -162,12 +181,7 @@ export const StressBurstMode: React.FC = () => {
                   {ripple && (
                     <span
                       className="absolute rounded-full bg-white/30 animate-ping"
-                      style={{
-                        left: ripple.x - 10,
-                        top: ripple.y - 10,
-                        width: 20,
-                        height: 20,
-                      }}
+                      style={{ left: ripple.x - 10, top: ripple.y - 10, width: 20, height: 20 }}
                     />
                   )}
                   <span className="relative z-10">Start</span>
@@ -178,24 +192,59 @@ export const StressBurstMode: React.FC = () => {
         </div>
       </section>
 
-      {/* Coming Soon Modal */}
-      <Dialog open={!!selectedMode} onOpenChange={() => setSelectedMode(null)}>
-        <DialogContent className="sm:max-w-md bg-card/90 backdrop-blur-xl border-border/50">
+      {/* Game Modal */}
+      <Dialog open={!!selectedMode} onOpenChange={handleClose}>
+        <DialogContent className={cn(
+          'bg-card/95 backdrop-blur-xl border-border/50',
+          activeGame ? 'sm:max-w-lg' : 'sm:max-w-md'
+        )}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-xl">
-              {selectedMode?.emoji} {selectedMode?.title}
+              {selectedMode?.emoji} {activeGame ? activeGame.label : selectedMode?.title}
             </DialogTitle>
             <DialogDescription className="text-muted-foreground">
-              {selectedMode?.description}
+              {activeGame ? 'Have fun! Take a break and recharge.' : selectedMode?.description}
             </DialogDescription>
           </DialogHeader>
-          <div className="py-6 text-center space-y-3">
-            <div className="text-4xl">🚀</div>
-            <p className="font-medium text-foreground">Coming Soon!</p>
-            <p className="text-sm text-muted-foreground">
-              We're building this experience for you. Stay tuned!
-            </p>
-          </div>
+
+          {activeGame ? (
+            <div className="py-4 flex flex-col items-center">
+              {activeGame.component ? (
+                <activeGame.component />
+              ) : (
+                <div className="py-8 text-center space-y-3">
+                  <div className="text-4xl">🚀</div>
+                  <p className="font-medium text-foreground">Coming Soon!</p>
+                  <p className="text-sm text-muted-foreground">We're building this experience for you.</p>
+                </div>
+              )}
+              <button
+                onClick={() => setActiveGame(null)}
+                className="mt-4 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                ← Back to games
+              </button>
+            </div>
+          ) : (
+            <div className="py-4 grid grid-cols-2 gap-3">
+              {selectedMode?.games.map((game) => (
+                <button
+                  key={game.id}
+                  onClick={() => setActiveGame(game)}
+                  className={cn(
+                    'p-4 rounded-xl border border-border/50 text-left transition-all duration-200',
+                    'hover:bg-primary/10 hover:border-primary/30',
+                    'flex flex-col items-center gap-2'
+                  )}
+                >
+                  <span className="font-medium text-sm text-foreground">{game.label}</span>
+                  {!game.component && (
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">Soon</span>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </>
