@@ -19,6 +19,9 @@ import ProgressPage from "@/pages/ProgressPage";
 import FocusTimerPage from "@/pages/FocusTimerPage";
 import ProfilePage from "@/pages/ProfilePage";
 import RevisionTrackerPage from "@/pages/RevisionTrackerPage";
+import AIStudyPlannerPage from "@/pages/AIStudyPlannerPage";
+import PYQExplorerPage from "@/pages/PYQExplorerPage";
+import NotesPage from "@/pages/NotesPage";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
