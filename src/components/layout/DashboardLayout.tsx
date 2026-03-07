@@ -31,11 +31,14 @@ interface DashboardLayoutProps {
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
+  { icon: Brain, label: 'AI Planner', path: '/ai-planner' },
   { icon: BookOpen, label: 'Subjects', path: '/subjects' },
   { icon: CheckSquare, label: 'Tasks', path: '/tasks' },
   { icon: Calendar, label: 'Calendar', path: '/calendar' },
   { icon: RefreshCw, label: 'Revisions', path: '/revisions' },
+  { icon: HelpCircle, label: 'PYQ Explorer', path: '/pyq-explorer' },
   { icon: FileText, label: 'Mock Tests', path: '/mock-tests' },
+  { icon: StickyNote, label: 'Notes', path: '/notes' },
   { icon: TrendingUp, label: 'Progress', path: '/progress' },
   { icon: Timer, label: 'Focus Timer', path: '/focus-timer' },
   { icon: User, label: 'Profile', path: '/profile' },
