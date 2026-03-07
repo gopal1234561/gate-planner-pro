@@ -47,6 +47,44 @@ export type Database = {
         }
         Relationships: []
       }
+      notes: {
+        Row: {
+          content: string | null
+          created_at: string
+          id: string
+          subject_id: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          subject_id?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          subject_id?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notes_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -75,6 +113,101 @@ export type Database = {
           full_name?: string | null
           id?: string
           target_exam?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      pyq_questions: {
+        Row: {
+          answer: string | null
+          created_at: string
+          id: string
+          is_user_added: boolean | null
+          question_text: string
+          subject: string
+          topic: string
+          user_id: string | null
+          year: number
+        }
+        Insert: {
+          answer?: string | null
+          created_at?: string
+          id?: string
+          is_user_added?: boolean | null
+          question_text: string
+          subject: string
+          topic: string
+          user_id?: string | null
+          year: number
+        }
+        Update: {
+          answer?: string | null
+          created_at?: string
+          id?: string
+          is_user_added?: boolean | null
+          question_text?: string
+          subject?: string
+          topic?: string
+          user_id?: string | null
+          year?: number
+        }
+        Relationships: []
+      }
+      pyq_solved: {
+        Row: {
+          id: string
+          question_id: string
+          solved_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          question_id: string
+          solved_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          question_id?: string
+          solved_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pyq_solved_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "pyq_questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      study_plans: {
+        Row: {
+          created_at: string
+          daily_hours: number
+          id: string
+          plan_data: Json
+          target_gate_year: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          daily_hours?: number
+          id?: string
+          plan_data?: Json
+          target_gate_year?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          daily_hours?: number
+          id?: string
+          plan_data?: Json
+          target_gate_year?: number
           updated_at?: string
           user_id?: string
         }

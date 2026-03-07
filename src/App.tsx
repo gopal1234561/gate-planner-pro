@@ -19,6 +19,9 @@ import ProgressPage from "@/pages/ProgressPage";
 import FocusTimerPage from "@/pages/FocusTimerPage";
 import ProfilePage from "@/pages/ProfilePage";
 import RevisionTrackerPage from "@/pages/RevisionTrackerPage";
+import AIStudyPlannerPage from "@/pages/AIStudyPlannerPage";
+import PYQExplorerPage from "@/pages/PYQExplorerPage";
+import NotesPage from "@/pages/NotesPage";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -79,6 +82,9 @@ const AppRoutes = () => {
       <Route path="/progress" element={<ProtectedRoute><ProgressPage /></ProtectedRoute>} />
       <Route path="/focus-timer" element={<ProtectedRoute><FocusTimerPage /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+      <Route path="/ai-planner" element={<ProtectedRoute><AIStudyPlannerPage /></ProtectedRoute>} />
+      <Route path="/pyq-explorer" element={<ProtectedRoute><PYQExplorerPage /></ProtectedRoute>} />
+      <Route path="/notes" element={<ProtectedRoute><NotesPage /></ProtectedRoute>} />
       
       {/* Catch-all */}
       <Route path="*" element={<NotFound />} />

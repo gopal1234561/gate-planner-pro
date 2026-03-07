@@ -1,1 +1,4 @@
 project_id = "ipyevzqgvbndfitmdfbo"
+
+[functions.ai-study-planner]
+verify_jwt = false
