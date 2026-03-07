@@ -18,6 +18,9 @@ import {
   Moon,
   Timer,
   RefreshCw,
+  Brain,
+  StickyNote,
+  HelpCircle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CountdownTimer } from '@/components/CountdownTimer';
