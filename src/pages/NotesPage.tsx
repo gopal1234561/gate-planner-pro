@@ -5,7 +5,7 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import RichTextEditor from '@/components/notes/RichTextEditor';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
@@ -120,7 +120,7 @@ const NotesPage: React.FC = () => {
               <GlassCard>
                 <div className="space-y-3">
                   <Input placeholder="Note title" value={newTitle} onChange={e => setNewTitle(e.target.value)} />
-                  <Textarea placeholder="Write your note..." value={newContent} onChange={e => setNewContent(e.target.value)} rows={4} />
+                  <RichTextEditor placeholder="Write your note..." value={newContent} onChange={setNewContent} />
                   <div className="flex gap-3 items-center">
                     <Select value={newSubjectId} onValueChange={setNewSubjectId}>
                       <SelectTrigger className="w-[200px]"><SelectValue placeholder="Link to subject" /></SelectTrigger>
@@ -160,7 +160,7 @@ const NotesPage: React.FC = () => {
                   {editingId === note.id ? (
                     <div className="space-y-2">
                       <Input value={editTitle} onChange={e => setEditTitle(e.target.value)} />
-                      <Textarea value={editContent} onChange={e => setEditContent(e.target.value)} rows={4} />
+                      <RichTextEditor value={editContent} onChange={setEditContent} />
                       <div className="flex gap-2">
                         <Button size="sm" onClick={() => saveEdit(note.id)}><Save className="w-3 h-3 mr-1" /> Save</Button>
                         <Button size="sm" variant="ghost" onClick={() => setEditingId(null)}><X className="w-3 h-3" /></Button>
@@ -185,7 +185,7 @@ const NotesPage: React.FC = () => {
                           {getSubjectName(note.subject_id)}
                         </Badge>
                       )}
-                      <p className="text-sm text-muted-foreground whitespace-pre-wrap line-clamp-6">{note.content}</p>
+                      <div className="text-sm text-muted-foreground line-clamp-6 prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: note.content || '' }} />
                       <p className="text-xs text-muted-foreground mt-3">{format(new Date(note.updated_at), 'MMM d, yyyy')}</p>
                     </>
                   )}
