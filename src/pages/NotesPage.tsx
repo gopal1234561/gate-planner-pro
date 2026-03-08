@@ -120,7 +120,7 @@ const NotesPage: React.FC = () => {
               <GlassCard>
                 <div className="space-y-3">
                   <Input placeholder="Note title" value={newTitle} onChange={e => setNewTitle(e.target.value)} />
-                  <Textarea placeholder="Write your note..." value={newContent} onChange={e => setNewContent(e.target.value)} rows={4} />
+                  <RichTextEditor placeholder="Write your note..." value={newContent} onChange={setNewContent} />
                   <div className="flex gap-3 items-center">
                     <Select value={newSubjectId} onValueChange={setNewSubjectId}>
                       <SelectTrigger className="w-[200px]"><SelectValue placeholder="Link to subject" /></SelectTrigger>
