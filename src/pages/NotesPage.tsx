@@ -185,7 +185,7 @@ const NotesPage: React.FC = () => {
                           {getSubjectName(note.subject_id)}
                         </Badge>
                       )}
-                      <p className="text-sm text-muted-foreground whitespace-pre-wrap line-clamp-6">{note.content}</p>
+                      <div className="text-sm text-muted-foreground line-clamp-6 prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: note.content || '' }} />
                       <p className="text-xs text-muted-foreground mt-3">{format(new Date(note.updated_at), 'MMM d, yyyy')}</p>
                     </>
                   )}
