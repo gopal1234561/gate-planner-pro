@@ -160,7 +160,7 @@ const NotesPage: React.FC = () => {
                   {editingId === note.id ? (
                     <div className="space-y-2">
                       <Input value={editTitle} onChange={e => setEditTitle(e.target.value)} />
-                      <Textarea value={editContent} onChange={e => setEditContent(e.target.value)} rows={4} />
+                      <RichTextEditor value={editContent} onChange={setEditContent} />
                       <div className="flex gap-2">
                         <Button size="sm" onClick={() => saveEdit(note.id)}><Save className="w-3 h-3 mr-1" /> Save</Button>
                         <Button size="sm" variant="ghost" onClick={() => setEditingId(null)}><X className="w-3 h-3" /></Button>
