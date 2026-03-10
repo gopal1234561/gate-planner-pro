@@ -121,11 +121,18 @@ const PYQExplorerPage: React.FC = () => {
                 className="pl-10"
               />
             </div>
-            <Select value={subjectFilter} onValueChange={setSubjectFilter}>
+            <Select value={subjectFilter} onValueChange={(v) => { setSubjectFilter(v); setTopicFilter('all'); }}>
               <SelectTrigger className="w-[180px]"><SelectValue placeholder="Subject" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Subjects</SelectItem>
                 {subjects.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Select value={topicFilter} onValueChange={setTopicFilter}>
+              <SelectTrigger className="w-[180px]"><SelectValue placeholder="Topic" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Topics</SelectItem>
+                {topics.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
               </SelectContent>
             </Select>
             <Select value={yearFilter} onValueChange={setYearFilter}>
