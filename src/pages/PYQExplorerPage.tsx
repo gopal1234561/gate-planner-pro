@@ -32,6 +32,7 @@ const PYQExplorerPage: React.FC = () => {
   const [search, setSearch] = useState('');
   const [subjectFilter, setSubjectFilter] = useState('all');
   const [yearFilter, setYearFilter] = useState('all');
+  const [topicFilter, setTopicFilter] = useState('all');
   const [showAnswer, setShowAnswer] = useState<string | null>(null);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [newQ, setNewQ] = useState({ subject: '', topic: '', year: 2023, question_text: '', answer: '' });
