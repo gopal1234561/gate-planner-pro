@@ -32,6 +32,7 @@ const PYQExplorerPage: React.FC = () => {
   const [search, setSearch] = useState('');
   const [subjectFilter, setSubjectFilter] = useState('all');
   const [yearFilter, setYearFilter] = useState('all');
+  const [topicFilter, setTopicFilter] = useState('all');
   const [showAnswer, setShowAnswer] = useState<string | null>(null);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [newQ, setNewQ] = useState({ subject: '', topic: '', year: 2023, question_text: '', answer: '' });
@@ -81,9 +82,15 @@ const PYQExplorerPage: React.FC = () => {
 
   const subjects = [...new Set(questions.map(q => q.subject))];
   const years = [...new Set(questions.map(q => q.year))].sort((a, b) => b - a);
+  const topics = [...new Set(
+    questions
+      .filter(q => subjectFilter === 'all' || q.subject === subjectFilter)
+      .map(q => q.topic)
+  )].sort();
 
   const filtered = questions.filter(q => {
     if (subjectFilter !== 'all' && q.subject !== subjectFilter) return false;
+    if (topicFilter !== 'all' && q.topic !== topicFilter) return false;
     if (yearFilter !== 'all' && q.year !== Number(yearFilter)) return false;
     if (search && !q.question_text.toLowerCase().includes(search.toLowerCase()) && !q.topic.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
@@ -114,11 +121,18 @@ const PYQExplorerPage: React.FC = () => {
                 className="pl-10"
               />
             </div>
-            <Select value={subjectFilter} onValueChange={setSubjectFilter}>
+            <Select value={subjectFilter} onValueChange={(v) => { setSubjectFilter(v); setTopicFilter('all'); }}>
               <SelectTrigger className="w-[180px]"><SelectValue placeholder="Subject" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Subjects</SelectItem>
                 {subjects.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Select value={topicFilter} onValueChange={setTopicFilter}>
+              <SelectTrigger className="w-[180px]"><SelectValue placeholder="Topic" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Topics</SelectItem>
+                {topics.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
               </SelectContent>
             </Select>
             <Select value={yearFilter} onValueChange={setYearFilter}>
