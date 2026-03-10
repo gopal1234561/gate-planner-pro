@@ -90,6 +90,7 @@ const PYQExplorerPage: React.FC = () => {
 
   const filtered = questions.filter(q => {
     if (subjectFilter !== 'all' && q.subject !== subjectFilter) return false;
+    if (topicFilter !== 'all' && q.topic !== topicFilter) return false;
     if (yearFilter !== 'all' && q.year !== Number(yearFilter)) return false;
     if (search && !q.question_text.toLowerCase().includes(search.toLowerCase()) && !q.topic.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
