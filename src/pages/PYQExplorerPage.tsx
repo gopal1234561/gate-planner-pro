@@ -82,6 +82,11 @@ const PYQExplorerPage: React.FC = () => {
 
   const subjects = [...new Set(questions.map(q => q.subject))];
   const years = [...new Set(questions.map(q => q.year))].sort((a, b) => b - a);
+  const topics = [...new Set(
+    questions
+      .filter(q => subjectFilter === 'all' || q.subject === subjectFilter)
+      .map(q => q.topic)
+  )].sort();
 
   const filtered = questions.filter(q => {
     if (subjectFilter !== 'all' && q.subject !== subjectFilter) return false;
