@@ -44,7 +44,8 @@ Rules:
 - Already completed topics: ${JSON.stringify(completedTopics)}
 - Available hours per day: ${dailyHours}
 - Target: GATE ${targetYear}
-${missedDays ? `- Missed days to reschedule: ${JSON.stringify(missedDays)}` : ''}
+${missedDays ? `- Missed days to reschedule: ${JSON.stringify(missedDays)}. IMPORTANT: Redistribute the topics from these missed days across the remaining days of the week.` : ''}
+${userPrompt ? `- Additional instructions from student: ${userPrompt}` : ''}
 
 Generate the weekly plan starting from today and provide 3-5 daily suggestions for what to focus on today.`;
 
