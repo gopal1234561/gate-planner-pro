@@ -39,7 +39,7 @@ Rules:
   "tips": ["tip1", "tip2"]
 }`;
 
-    const userPrompt = `Create a study plan with these details:
+    const finalPrompt = `Create a study plan with these details:
 - Subjects: ${JSON.stringify(subjects)}
 - Already completed topics: ${JSON.stringify(completedTopics)}
 - Available hours per day: ${dailyHours}
