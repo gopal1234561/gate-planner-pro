@@ -58,6 +58,8 @@ const AIStudyPlannerPage: React.FC = () => {
   const [topics, setTopics] = useState<any[]>([]);
   const [dailyHours, setDailyHours] = useState(6);
   const [selectedDay, setSelectedDay] = useState(0);
+  const [userPrompt, setUserPrompt] = useState('');
+  const [missedDays, setMissedDays] = useState<string[]>([]);
 
   useEffect(() => {
     if (user) fetchUserData();
