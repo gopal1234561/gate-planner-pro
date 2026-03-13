@@ -59,7 +59,7 @@ Generate the weekly plan starting from today and provide 3-5 daily suggestions f
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
+          { role: "user", content: finalPrompt },
         ],
         tools: [
           {
