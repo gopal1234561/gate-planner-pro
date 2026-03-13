@@ -9,6 +9,8 @@ import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface StudySession {
   subject: string;
@@ -58,6 +60,8 @@ const AIStudyPlannerPage: React.FC = () => {
   const [topics, setTopics] = useState<any[]>([]);
   const [dailyHours, setDailyHours] = useState(6);
   const [selectedDay, setSelectedDay] = useState(0);
+  const [userPrompt, setUserPrompt] = useState('');
+  const [missedDays, setMissedDays] = useState<string[]>([]);
 
   useEffect(() => {
     if (user) fetchUserData();
@@ -88,6 +92,8 @@ const AIStudyPlannerPage: React.FC = () => {
           completedTopics,
           dailyHours,
           targetYear: 2027,
+          missedDays: missedDays.length > 0 ? missedDays : undefined,
+          userPrompt: userPrompt.trim() || undefined,
         },
       });
 
@@ -130,6 +136,39 @@ const AIStudyPlannerPage: React.FC = () => {
               {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
               {loading ? 'Generating...' : 'Generate Study Plan'}
             </Button>
+          </div>
+
+          {/* Custom Prompt */}
+          <div className="mt-4 space-y-2">
+            <label className="text-sm font-medium text-foreground">Custom Instructions (optional)</label>
+            <Textarea
+              placeholder="E.g. Focus more on Algorithms, I'm weak in OS scheduling, give me more practice problems..."
+              value={userPrompt}
+              onChange={(e) => setUserPrompt(e.target.value)}
+              className="bg-muted/50 border-border resize-none"
+              rows={2}
+            />
+          </div>
+
+          {/* Missed Days */}
+          <div className="mt-4 space-y-2">
+            <label className="text-sm font-medium text-foreground">Missed days to reschedule</label>
+            <div className="flex flex-wrap gap-3">
+              {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
+                <label key={day} className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
+                  <Checkbox
+                    checked={missedDays.includes(day)}
+                    onCheckedChange={(checked) => {
+                      setMissedDays(prev =>
+                        checked ? [...prev, day] : prev.filter(d => d !== day)
+                      );
+                    }}
+                  />
+                  {day.slice(0, 3)}
+                </label>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground">Select days you missed — AI will redistribute those topics across remaining days.</p>
           </div>
         </GlassCard>
 
