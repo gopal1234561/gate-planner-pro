@@ -36,7 +36,6 @@ const navItems = [
   { icon: CheckSquare, label: 'Tasks', path: '/tasks' },
   { icon: Calendar, label: 'Calendar', path: '/calendar' },
   { icon: RefreshCw, label: 'Revisions', path: '/revisions' },
-  { icon: HelpCircle, label: 'PYQ Explorer', path: '/pyq-explorer' },
   { icon: FileText, label: 'Mock Tests', path: '/mock-tests' },
   { icon: StickyNote, label: 'Notes', path: '/notes' },
   { icon: TrendingUp, label: 'Progress', path: '/progress' },
