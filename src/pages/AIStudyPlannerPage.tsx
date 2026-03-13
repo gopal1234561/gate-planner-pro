@@ -90,6 +90,8 @@ const AIStudyPlannerPage: React.FC = () => {
           completedTopics,
           dailyHours,
           targetYear: 2027,
+          missedDays: missedDays.length > 0 ? missedDays : undefined,
+          userPrompt: userPrompt.trim() || undefined,
         },
       });
 
