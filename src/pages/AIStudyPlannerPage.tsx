@@ -137,6 +137,39 @@ const AIStudyPlannerPage: React.FC = () => {
               {loading ? 'Generating...' : 'Generate Study Plan'}
             </Button>
           </div>
+
+          {/* Custom Prompt */}
+          <div className="mt-4 space-y-2">
+            <label className="text-sm font-medium text-foreground">Custom Instructions (optional)</label>
+            <Textarea
+              placeholder="E.g. Focus more on Algorithms, I'm weak in OS scheduling, give me more practice problems..."
+              value={userPrompt}
+              onChange={(e) => setUserPrompt(e.target.value)}
+              className="bg-muted/50 border-border resize-none"
+              rows={2}
+            />
+          </div>
+
+          {/* Missed Days */}
+          <div className="mt-4 space-y-2">
+            <label className="text-sm font-medium text-foreground">Missed days to reschedule</label>
+            <div className="flex flex-wrap gap-3">
+              {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
+                <label key={day} className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
+                  <Checkbox
+                    checked={missedDays.includes(day)}
+                    onCheckedChange={(checked) => {
+                      setMissedDays(prev =>
+                        checked ? [...prev, day] : prev.filter(d => d !== day)
+                      );
+                    }}
+                  />
+                  {day.slice(0, 3)}
+                </label>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground">Select days you missed — AI will redistribute those topics across remaining days.</p>
+          </div>
         </GlassCard>
 
         {plan && (
