@@ -21,6 +21,7 @@ import {
   Brain,
   StickyNote,
   HelpCircle,
+  FlaskConical,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CountdownTimer } from '@/components/CountdownTimer';
