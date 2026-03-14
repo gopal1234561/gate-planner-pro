@@ -21,6 +21,7 @@ import ProfilePage from "@/pages/ProfilePage";
 import RevisionTrackerPage from "@/pages/RevisionTrackerPage";
 import AIStudyPlannerPage from "@/pages/AIStudyPlannerPage";
 import NotesPage from "@/pages/NotesPage";
+import FormulaSheetsPage from "@/pages/FormulaSheetsPage";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
