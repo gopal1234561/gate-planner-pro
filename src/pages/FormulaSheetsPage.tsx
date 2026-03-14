@@ -145,6 +145,33 @@ const FormulaSheetsPage: React.FC = () => {
 
   const categories = ['general', 'algebra', 'calculus', 'probability', 'data-structures', 'networks', 'os', 'digital-logic', 'other'];
 
+  const categoryIcons: Record<string, React.ReactNode> = {
+    general: <Lightbulb className="w-3 h-3" />,
+    algebra: <Hash className="w-3 h-3" />,
+    calculus: <FunctionSquare className="w-3 h-3" />,
+    probability: <Sigma className="w-3 h-3" />,
+    'data-structures': <GitBranch className="w-3 h-3" />,
+    networks: <Network className="w-3 h-3" />,
+    os: <Cpu className="w-3 h-3" />,
+    'digital-logic': <Binary className="w-3 h-3" />,
+    other: <MoreHorizontal className="w-3 h-3" />,
+  };
+
+  const categoryGradients: Record<string, string> = {
+    general: 'from-violet-500/20 via-fuchsia-500/20 to-pink-500/20',
+    algebra: 'from-blue-500/20 via-cyan-500/20 to-teal-500/20',
+    calculus: 'from-amber-500/20 via-orange-500/20 to-red-500/20',
+    probability: 'from-emerald-500/20 via-green-500/20 to-lime-500/20',
+    'data-structures': 'from-indigo-500/20 via-purple-500/20 to-violet-500/20',
+    networks: 'from-sky-500/20 via-blue-500/20 to-indigo-500/20',
+    os: 'from-rose-500/20 via-pink-500/20 to-fuchsia-500/20',
+    'digital-logic': 'from-slate-500/20 via-zinc-500/20 to-neutral-500/20',
+    other: 'from-stone-500/20 via-orange-500/20 to-amber-500/20',
+  };
+
+  const getCategoryIcon = (category: string) => categoryIcons[category] || <Calculator className="w-3 h-3" />;
+  const getCategoryGradient = (category: string) => categoryGradients[category] || categoryGradients.general;
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
