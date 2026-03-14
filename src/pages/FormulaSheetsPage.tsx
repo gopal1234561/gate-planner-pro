@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Star, StarOff, Trash2, Edit3, Search, BookOpen, X, Save } from 'lucide-react';
+import { 
+  Plus, Star, StarOff, Trash2, Edit3, Search, BookOpen, X, Save, 
+  Calculator, FunctionSquare, Sigma, GitBranch, Network, Cpu, 
+  Binary, MoreHorizontal, Hash, Lightbulb 
+} from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Button } from '@/components/ui/button';
@@ -12,6 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 interface FormulaSheet {
   id: string;
@@ -140,6 +145,33 @@ const FormulaSheetsPage: React.FC = () => {
 
   const categories = ['general', 'algebra', 'calculus', 'probability', 'data-structures', 'networks', 'os', 'digital-logic', 'other'];
 
+  const categoryIcons: Record<string, React.ReactNode> = {
+    general: <Lightbulb className="w-3 h-3" />,
+    algebra: <Hash className="w-3 h-3" />,
+    calculus: <FunctionSquare className="w-3 h-3" />,
+    probability: <Sigma className="w-3 h-3" />,
+    'data-structures': <GitBranch className="w-3 h-3" />,
+    networks: <Network className="w-3 h-3" />,
+    os: <Cpu className="w-3 h-3" />,
+    'digital-logic': <Binary className="w-3 h-3" />,
+    other: <MoreHorizontal className="w-3 h-3" />,
+  };
+
+  const categoryGradients: Record<string, string> = {
+    general: 'from-violet-500/20 via-fuchsia-500/20 to-pink-500/20',
+    algebra: 'from-blue-500/20 via-cyan-500/20 to-teal-500/20',
+    calculus: 'from-amber-500/20 via-orange-500/20 to-red-500/20',
+    probability: 'from-emerald-500/20 via-green-500/20 to-lime-500/20',
+    'data-structures': 'from-indigo-500/20 via-purple-500/20 to-violet-500/20',
+    networks: 'from-sky-500/20 via-blue-500/20 to-indigo-500/20',
+    os: 'from-rose-500/20 via-pink-500/20 to-fuchsia-500/20',
+    'digital-logic': 'from-slate-500/20 via-zinc-500/20 to-neutral-500/20',
+    other: 'from-stone-500/20 via-orange-500/20 to-amber-500/20',
+  };
+
+  const getCategoryIcon = (category: string) => categoryIcons[category] || <Calculator className="w-3 h-3" />;
+  const getCategoryGradient = (category: string) => categoryGradients[category] || categoryGradients.general;
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -196,37 +228,60 @@ const FormulaSheetsPage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map((sheet, idx) => (
               <motion.div key={sheet.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}>
-                <GlassCard className="h-full flex flex-col">
-                  <div className="flex items-start justify-between mb-3">
+                <GlassCard className={cn("h-full flex flex-col relative overflow-hidden", getCategoryGradient(sheet.category))}>
+                  {/* Decorative gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-background/50 via-background/30 to-transparent pointer-events-none" />
+                  
+                  <div className="relative flex items-start justify-between mb-3">
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-lg truncate">{sheet.title}</h3>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge variant="outline" style={{ borderColor: getSubjectColor(sheet.subject_id), color: getSubjectColor(sheet.subject_id) }}>
+                      <h3 className="font-semibold text-lg truncate bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">{sheet.title}</h3>
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
+                        <Badge 
+                          variant="outline" 
+                          className="border-primary/30 text-primary font-medium"
+                          style={{ borderColor: getSubjectColor(sheet.subject_id), color: getSubjectColor(sheet.subject_id) }}
+                        >
                           {getSubjectName(sheet.subject_id)}
                         </Badge>
-                        <Badge variant="secondary" className="text-xs">{sheet.category}</Badge>
+                        <Badge 
+                          variant="secondary" 
+                          className="text-xs bg-secondary/60 backdrop-blur-sm"
+                        >
+                          <span className="flex items-center gap-1">
+                            {getCategoryIcon(sheet.category)}
+                            {sheet.category.charAt(0).toUpperCase() + sheet.category.slice(1).replace('-', ' ')}
+                          </span>
+                        </Badge>
                       </div>
                     </div>
-                    <button onClick={() => toggleFavorite(sheet)} className="text-yellow-500 hover:scale-110 transition-transform ml-2">
-                      {sheet.is_favorite ? <Star className="w-5 h-5 fill-yellow-500" /> : <StarOff className="w-5 h-5" />}
+                    <button 
+                      onClick={() => toggleFavorite(sheet)} 
+                      className="text-amber-500 hover:scale-110 transition-transform ml-2 p-1 rounded-full hover:bg-amber-500/10"
+                    >
+                      {sheet.is_favorite ? <Star className="w-5 h-5 fill-amber-500" /> : <StarOff className="w-5 h-5 text-muted-foreground" />}
                     </button>
                   </div>
 
                   <div
-                    className={`flex-1 text-sm text-muted-foreground whitespace-pre-wrap font-mono bg-muted/50 rounded-lg p-3 cursor-pointer transition-all ${expandedSheet === sheet.id ? '' : 'max-h-32 overflow-hidden'}`}
+                    className={cn(
+                      "flex-1 text-sm text-muted-foreground whitespace-pre-wrap font-mono bg-background/60 backdrop-blur-sm rounded-lg p-3 cursor-pointer transition-all border border-border/50 hover:border-primary/30",
+                      expandedSheet === sheet.id ? '' : 'max-h-32 overflow-hidden'
+                    )}
                     onClick={() => setExpandedSheet(expandedSheet === sheet.id ? null : sheet.id)}
                   >
                     {sheet.content}
                   </div>
                   {expandedSheet !== sheet.id && sheet.content.length > 200 && (
-                    <p className="text-xs text-primary mt-1 cursor-pointer" onClick={() => setExpandedSheet(sheet.id)}>Click to expand...</p>
+                    <p className="text-xs text-primary mt-1 cursor-pointer hover:underline" onClick={() => setExpandedSheet(sheet.id)}>
+                      Click to expand...
+                    </p>
                   )}
 
-                  <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border">
-                    <Button variant="ghost" size="sm" onClick={() => openEditDialog(sheet)}>
+                  <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border/60 relative">
+                    <Button variant="ghost" size="sm" className="hover:bg-primary/10 hover:text-primary transition-colors">
                       <Edit3 className="w-4 h-4 mr-1" /> Edit
                     </Button>
-                    <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => deleteSheet(sheet.id)}>
+                    <Button variant="ghost" size="sm" className="text-destructive/80 hover:text-destructive hover:bg-destructive/10 transition-colors" onClick={() => deleteSheet(sheet.id)}>
                       <Trash2 className="w-4 h-4 mr-1" /> Delete
                     </Button>
                   </div>
