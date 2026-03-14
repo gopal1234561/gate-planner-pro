@@ -39,6 +39,7 @@ const navItems = [
   { icon: RefreshCw, label: 'Revisions', path: '/revisions' },
   { icon: FileText, label: 'Mock Tests', path: '/mock-tests' },
   { icon: StickyNote, label: 'Notes', path: '/notes' },
+  { icon: FlaskConical, label: 'Formulas', path: '/formulas' },
   { icon: TrendingUp, label: 'Progress', path: '/progress' },
   { icon: Timer, label: 'Focus Timer', path: '/focus-timer' },
   { icon: User, label: 'Profile', path: '/profile' },

@@ -220,6 +220,9 @@ const DashboardPage: React.FC = () => {
           )}
         </GlassCard>
 
+        {/* Daily Reminders */}
+        <DailyReminders />
+
         {/* Stress Burst Mode */}
         <StressBurstMode />
       </div>

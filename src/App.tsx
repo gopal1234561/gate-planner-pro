@@ -84,6 +84,7 @@ const AppRoutes = () => {
       <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
       <Route path="/ai-planner" element={<ProtectedRoute><AIStudyPlannerPage /></ProtectedRoute>} />
       <Route path="/notes" element={<ProtectedRoute><NotesPage /></ProtectedRoute>} />
+      <Route path="/formulas" element={<ProtectedRoute><FormulaSheetsPage /></ProtectedRoute>} />
       
       {/* Catch-all */}
       <Route path="*" element={<NotFound />} />
