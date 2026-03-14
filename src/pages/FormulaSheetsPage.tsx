@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Star, StarOff, Trash2, Edit3, Search, BookOpen, X, Save } from 'lucide-react';
+import { 
+  Plus, Star, StarOff, Trash2, Edit3, Search, BookOpen, X, Save, 
+  Calculator, FunctionSquare, Sigma, GitBranch, Network, Cpu, 
+  Binary, MoreHorizontal, Hash, Lightbulb 
+} from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Button } from '@/components/ui/button';
@@ -12,6 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 interface FormulaSheet {
   id: string;
