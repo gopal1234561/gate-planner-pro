@@ -16,6 +16,7 @@ import { supabase } from '@/lib/supabase';
 import { format } from 'date-fns';
 import { Progress } from '@/components/ui/progress';
 import { StressBurstMode } from '@/components/StressBurstMode';
+import { DailyReminders } from '@/components/DailyReminders';
 
 interface DashboardStats {
   todayTasks: number;
