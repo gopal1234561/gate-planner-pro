@@ -21,6 +21,7 @@ import ProfilePage from "@/pages/ProfilePage";
 import RevisionTrackerPage from "@/pages/RevisionTrackerPage";
 import AIStudyPlannerPage from "@/pages/AIStudyPlannerPage";
 import NotesPage from "@/pages/NotesPage";
+import FormulaSheetsPage from "@/pages/FormulaSheetsPage";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -83,6 +84,7 @@ const AppRoutes = () => {
       <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
       <Route path="/ai-planner" element={<ProtectedRoute><AIStudyPlannerPage /></ProtectedRoute>} />
       <Route path="/notes" element={<ProtectedRoute><NotesPage /></ProtectedRoute>} />
+      <Route path="/formulas" element={<ProtectedRoute><FormulaSheetsPage /></ProtectedRoute>} />
       
       {/* Catch-all */}
       <Route path="*" element={<NotFound />} />
