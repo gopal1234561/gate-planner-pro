@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, Star, StarOff, Trash2, Edit3, Search, BookOpen, X, Save, 
   Calculator, FunctionSquare, Sigma, GitBranch, Network, Cpu, 
-  Binary, MoreHorizontal, Hash, Lightbulb 
+  Binary, MoreHorizontal, Hash, Lightbulb, Zap
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { GlassCard } from '@/components/ui/GlassCard';
@@ -17,6 +17,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import FlashcardQuiz from '@/components/formulas/FlashcardQuiz';
 
 interface FormulaSheet {
   id: string;
@@ -46,6 +47,7 @@ const FormulaSheetsPage: React.FC = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingSheet, setEditingSheet] = useState<FormulaSheet | null>(null);
   const [expandedSheet, setExpandedSheet] = useState<string | null>(null);
+  const [quizMode, setQuizMode] = useState(false);
 
   // Form state
   const [formTitle, setFormTitle] = useState('');
@@ -182,9 +184,14 @@ const FormulaSheetsPage: React.FC = () => {
             </h1>
             <p className="text-muted-foreground mt-1">Quick-access formula cards for last-minute revision</p>
           </div>
-          <Button onClick={openCreateDialog} className="bg-hero-gradient text-white">
-            <Plus className="w-4 h-4 mr-2" /> Add Formula Card
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={() => setQuizMode(true)} variant="outline" disabled={filtered.length === 0}>
+              <Zap className="w-4 h-4 mr-2" /> Quiz Mode
+            </Button>
+            <Button onClick={openCreateDialog} className="bg-hero-gradient text-white">
+              <Plus className="w-4 h-4 mr-2" /> Add Formula Card
+            </Button>
+          </div>
         </motion.div>
 
         {/* Filters */}
@@ -211,6 +218,15 @@ const FormulaSheetsPage: React.FC = () => {
           </div>
         </GlassCard>
 
+        {/* Quiz Mode */}
+        {quizMode ? (
+          <FlashcardQuiz
+            sheets={filtered}
+            getSubjectName={getSubjectName}
+            onClose={() => setQuizMode(false)}
+          />
+        ) : (
+        <>
         {/* Cards Grid */}
         {loading ? (
           <div className="flex justify-center py-12">
@@ -288,6 +304,8 @@ const FormulaSheetsPage: React.FC = () => {
               </motion.div>
             ))}
           </div>
+        )}
+        </>
         )}
 
         {/* Create/Edit Dialog */}
