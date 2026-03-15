@@ -184,9 +184,14 @@ const FormulaSheetsPage: React.FC = () => {
             </h1>
             <p className="text-muted-foreground mt-1">Quick-access formula cards for last-minute revision</p>
           </div>
-          <Button onClick={openCreateDialog} className="bg-hero-gradient text-white">
-            <Plus className="w-4 h-4 mr-2" /> Add Formula Card
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={() => setQuizMode(true)} variant="outline" disabled={filtered.length === 0}>
+              <Zap className="w-4 h-4 mr-2" /> Quiz Mode
+            </Button>
+            <Button onClick={openCreateDialog} className="bg-hero-gradient text-white">
+              <Plus className="w-4 h-4 mr-2" /> Add Formula Card
+            </Button>
+          </div>
         </motion.div>
 
         {/* Filters */}
