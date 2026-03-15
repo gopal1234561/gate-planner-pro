@@ -305,6 +305,8 @@ const FormulaSheetsPage: React.FC = () => {
             ))}
           </div>
         )}
+        </>
+        )}
 
         {/* Create/Edit Dialog */}
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
