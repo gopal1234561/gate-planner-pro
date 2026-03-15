@@ -299,12 +299,10 @@ const FormulaSheetsPage: React.FC = () => {
             </DialogHeader>
             <div className="space-y-4">
               <Input placeholder="Title (e.g. Sorting Complexities)" value={formTitle} onChange={e => setFormTitle(e.target.value)} />
-              <Textarea
-                placeholder="Write your formulas here...&#10;e.g.&#10;Bubble Sort: O(n²)&#10;Merge Sort: O(n log n)&#10;Quick Sort: O(n log n) avg"
+              <RichTextEditor
+                placeholder="Write your formulas here..."
                 value={formContent}
-                onChange={e => setFormContent(e.target.value)}
-                rows={8}
-                className="font-mono text-sm"
+                onChange={setFormContent}
               />
               <div className="grid grid-cols-2 gap-3">
                 <Select value={formSubjectId} onValueChange={setFormSubjectId}>
