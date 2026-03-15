@@ -9,7 +9,7 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import RichTextEditor from '@/components/notes/RichTextEditor';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
@@ -264,13 +264,12 @@ const FormulaSheetsPage: React.FC = () => {
 
                   <div
                     className={cn(
-                      "flex-1 text-sm text-muted-foreground whitespace-pre-wrap font-mono bg-background/60 backdrop-blur-sm rounded-lg p-3 cursor-pointer transition-all border border-border/50 hover:border-primary/30",
+                      "flex-1 text-sm text-muted-foreground whitespace-pre-wrap font-mono bg-background/60 backdrop-blur-sm rounded-lg p-3 cursor-pointer transition-all border border-border/50 hover:border-primary/30 prose prose-sm dark:prose-invert max-w-none",
                       expandedSheet === sheet.id ? '' : 'max-h-32 overflow-hidden'
                     )}
                     onClick={() => setExpandedSheet(expandedSheet === sheet.id ? null : sheet.id)}
-                  >
-                    {sheet.content}
-                  </div>
+                    dangerouslySetInnerHTML={{ __html: sheet.content }}
+                  />
                   {expandedSheet !== sheet.id && sheet.content.length > 200 && (
                     <p className="text-xs text-primary mt-1 cursor-pointer hover:underline" onClick={() => setExpandedSheet(sheet.id)}>
                       Click to expand...
@@ -299,12 +298,10 @@ const FormulaSheetsPage: React.FC = () => {
             </DialogHeader>
             <div className="space-y-4">
               <Input placeholder="Title (e.g. Sorting Complexities)" value={formTitle} onChange={e => setFormTitle(e.target.value)} />
-              <Textarea
-                placeholder="Write your formulas here...&#10;e.g.&#10;Bubble Sort: O(n²)&#10;Merge Sort: O(n log n)&#10;Quick Sort: O(n log n) avg"
+              <RichTextEditor
+                placeholder="Write your formulas here..."
                 value={formContent}
-                onChange={e => setFormContent(e.target.value)}
-                rows={8}
-                className="font-mono text-sm"
+                onChange={setFormContent}
               />
               <div className="grid grid-cols-2 gap-3">
                 <Select value={formSubjectId} onValueChange={setFormSubjectId}>
