@@ -47,6 +47,7 @@ const FormulaSheetsPage: React.FC = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingSheet, setEditingSheet] = useState<FormulaSheet | null>(null);
   const [expandedSheet, setExpandedSheet] = useState<string | null>(null);
+  const [quizMode, setQuizMode] = useState(false);
 
   // Form state
   const [formTitle, setFormTitle] = useState('');
