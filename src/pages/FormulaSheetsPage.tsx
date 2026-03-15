@@ -218,6 +218,15 @@ const FormulaSheetsPage: React.FC = () => {
           </div>
         </GlassCard>
 
+        {/* Quiz Mode */}
+        {quizMode ? (
+          <FlashcardQuiz
+            sheets={filtered}
+            getSubjectName={getSubjectName}
+            onClose={() => setQuizMode(false)}
+          />
+        ) : (
+        <>
         {/* Cards Grid */}
         {loading ? (
           <div className="flex justify-center py-12">
