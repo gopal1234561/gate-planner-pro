@@ -178,7 +178,31 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
             </div>
           </PopoverContent>
         </Popover>
-      </div>
+
+        {/* Image Upload */}
+        {enableImageUpload && (
+          <>
+            <div className="w-px h-5 bg-border mx-1" />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageUpload}
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              title="Insert Image"
+            >
+              {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ImagePlus className="w-3.5 h-3.5" />}
+            </Button>
+          </>
+        )}
 
       {/* Editor */}
       <div
