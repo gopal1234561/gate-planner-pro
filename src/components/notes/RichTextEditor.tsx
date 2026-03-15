@@ -203,6 +203,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
             </Button>
           </>
         )}
+      </div>
 
       {/* Editor */}
       <div
