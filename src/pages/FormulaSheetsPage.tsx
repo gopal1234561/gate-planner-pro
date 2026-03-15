@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, Star, StarOff, Trash2, Edit3, Search, BookOpen, X, Save, 
   Calculator, FunctionSquare, Sigma, GitBranch, Network, Cpu, 
-  Binary, MoreHorizontal, Hash, Lightbulb 
+  Binary, MoreHorizontal, Hash, Lightbulb, Zap
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { GlassCard } from '@/components/ui/GlassCard';
