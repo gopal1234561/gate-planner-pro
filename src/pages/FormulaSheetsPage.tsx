@@ -264,13 +264,12 @@ const FormulaSheetsPage: React.FC = () => {
 
                   <div
                     className={cn(
-                      "flex-1 text-sm text-muted-foreground whitespace-pre-wrap font-mono bg-background/60 backdrop-blur-sm rounded-lg p-3 cursor-pointer transition-all border border-border/50 hover:border-primary/30",
+                      "flex-1 text-sm text-muted-foreground whitespace-pre-wrap font-mono bg-background/60 backdrop-blur-sm rounded-lg p-3 cursor-pointer transition-all border border-border/50 hover:border-primary/30 prose prose-sm dark:prose-invert max-w-none",
                       expandedSheet === sheet.id ? '' : 'max-h-32 overflow-hidden'
                     )}
                     onClick={() => setExpandedSheet(expandedSheet === sheet.id ? null : sheet.id)}
-                  >
-                    {sheet.content}
-                  </div>
+                    dangerouslySetInnerHTML={{ __html: sheet.content }}
+                  />
                   {expandedSheet !== sheet.id && sheet.content.length > 200 && (
                     <p className="text-xs text-primary mt-1 cursor-pointer hover:underline" onClick={() => setExpandedSheet(sheet.id)}>
                       Click to expand...

@@ -35,8 +35,10 @@ const HIGHLIGHT_COLORS = [
   { label: 'Orange', value: '#FFEDD5', class: 'bg-orange-100' },
 ];
 
-const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeholder, className }) => {
+const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeholder, className, enableImageUpload = true }) => {
   const editorRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
 
   const execCommand = useCallback((command: string, value?: string) => {
     document.execCommand(command, false, value);
@@ -56,6 +58,35 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
     const text = e.clipboardData.getData('text/plain');
     document.execCommand('insertText', false, text);
   }, []);
+
+  const handleImageUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setUploading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+      
+      const ext = file.name.split('.').pop();
+      const fileName = `${user.id}/${Date.now()}.${ext}`;
+      
+      const { error } = await supabase.storage.from('note-images').upload(fileName, file);
+      if (error) throw error;
+      
+      const { data: { publicUrl } } = supabase.storage.from('note-images').getPublicUrl(fileName);
+      
+      document.execCommand('insertHTML', false, `<img src="${publicUrl}" alt="note image" style="max-width:100%;border-radius:8px;margin:8px 0;" />`);
+      if (editorRef.current) {
+        onChange(editorRef.current.innerHTML);
+      }
+    } catch (err: any) {
+      console.error('Upload failed:', err.message);
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  }, [onChange]);
 
   return (
     <div className="space-y-1">
