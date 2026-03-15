@@ -11,6 +11,7 @@ interface RichTextEditorProps {
   placeholder?: string;
   rows?: number;
   className?: string;
+  enableImageUpload?: boolean;
 }
 
 const TEXT_COLORS = [
