@@ -39,9 +39,25 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
   const editorRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const isInitialMount = useRef(true);
 
-  const execCommand = useCallback((command: string, value?: string) => {
-    document.execCommand(command, false, value);
+  // Only set innerHTML on initial mount or when value changes externally
+  useEffect(() => {
+    if (editorRef.current && isInitialMount.current) {
+      editorRef.current.innerHTML = value || '';
+      isInitialMount.current = false;
+    }
+  }, []);
+
+  // Sync external value changes (e.g. clearing the form)
+  useEffect(() => {
+    if (!isInitialMount.current && editorRef.current && value === '') {
+      editorRef.current.innerHTML = '';
+    }
+  }, [value]);
+
+  const execCommand = useCallback((command: string, val?: string) => {
+    document.execCommand(command, false, val);
     if (editorRef.current) {
       onChange(editorRef.current.innerHTML);
     }
