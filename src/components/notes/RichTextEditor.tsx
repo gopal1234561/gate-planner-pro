@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useState } from 'react';
+import React, { useRef, useCallback, useState, useEffect } from 'react';
 import { Bold, Italic, Underline, Paintbrush, Type, Highlighter, ImagePlus, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -39,9 +39,25 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
   const editorRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const isInitialMount = useRef(true);
 
-  const execCommand = useCallback((command: string, value?: string) => {
-    document.execCommand(command, false, value);
+  // Only set innerHTML on initial mount or when value changes externally
+  useEffect(() => {
+    if (editorRef.current && isInitialMount.current) {
+      editorRef.current.innerHTML = value || '';
+      isInitialMount.current = false;
+    }
+  }, []);
+
+  // Sync external value changes (e.g. clearing the form)
+  useEffect(() => {
+    if (!isInitialMount.current && editorRef.current && value === '') {
+      editorRef.current.innerHTML = '';
+    }
+  }, [value]);
+
+  const execCommand = useCallback((command: string, val?: string) => {
+    document.execCommand(command, false, val);
     if (editorRef.current) {
       onChange(editorRef.current.innerHTML);
     }
@@ -212,7 +228,6 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
         suppressContentEditableWarning
         onInput={handleInput}
         onPaste={handlePaste}
-        dangerouslySetInnerHTML={{ __html: value }}
         data-placeholder={placeholder}
         className={cn(
           'min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background',
