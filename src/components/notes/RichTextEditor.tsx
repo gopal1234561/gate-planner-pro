@@ -228,7 +228,6 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
         suppressContentEditableWarning
         onInput={handleInput}
         onPaste={handlePaste}
-        dangerouslySetInnerHTML={{ __html: value }}
         data-placeholder={placeholder}
         className={cn(
           'min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background',
