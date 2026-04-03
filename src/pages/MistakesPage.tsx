@@ -155,6 +155,7 @@ const MistakesPage: React.FC = () => {
     resolved: mistakes.filter(m => m.is_resolved).length,
     conceptual: mistakes.filter(m => m.category === 'conceptual' && !m.is_resolved).length,
     silly: mistakes.filter(m => m.category === 'silly' && !m.is_resolved).length,
+    personal: mistakes.filter(m => categories.find(c => c.value === m.category)?.group === 'personal' && !m.is_resolved).length,
   };
 
   const MistakeForm = ({ onSave, saveLabel }: { onSave: () => void; saveLabel: string }) => (
