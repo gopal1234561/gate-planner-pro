@@ -202,12 +202,13 @@ const MistakesPage: React.FC = () => {
         </motion.div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           {[
             { label: 'Total', value: stats.total, icon: AlertCircle },
             { label: 'Resolved', value: stats.resolved, icon: CheckCircle2 },
             { label: 'Conceptual', value: stats.conceptual, icon: BookOpen },
             { label: 'Silly', value: stats.silly, icon: AlertCircle },
+            { label: 'Personal', value: stats.personal, icon: AlertCircle },
           ].map((s, i) => (
             <GlassCard key={i} className="text-center py-4">
               <s.icon className="w-5 h-5 mx-auto mb-1 text-primary" />
