@@ -32,10 +32,14 @@ interface Subject {
 }
 
 const categories = [
-  { value: 'conceptual', label: 'Conceptual', color: 'bg-red-500/20 text-red-400 border-red-500/30' },
-  { value: 'calculation', label: 'Calculation', color: 'bg-orange-500/20 text-orange-400 border-orange-500/30' },
-  { value: 'silly', label: 'Silly Mistake', color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' },
-  { value: 'other', label: 'Other', color: 'bg-blue-500/20 text-blue-400 border-blue-500/30' },
+  { value: 'conceptual', label: 'Conceptual', color: 'bg-red-500/20 text-red-400 border-red-500/30', group: 'academic' },
+  { value: 'calculation', label: 'Calculation', color: 'bg-orange-500/20 text-orange-400 border-orange-500/30', group: 'academic' },
+  { value: 'silly', label: 'Silly Mistake', color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30', group: 'academic' },
+  { value: 'time_management', label: 'Time Management', color: 'bg-purple-500/20 text-purple-400 border-purple-500/30', group: 'personal' },
+  { value: 'discipline', label: 'Discipline', color: 'bg-pink-500/20 text-pink-400 border-pink-500/30', group: 'personal' },
+  { value: 'habit', label: 'Bad Habit', color: 'bg-rose-500/20 text-rose-400 border-rose-500/30', group: 'personal' },
+  { value: 'personal_other', label: 'Personal Other', color: 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30', group: 'personal' },
+  { value: 'other', label: 'Other', color: 'bg-blue-500/20 text-blue-400 border-blue-500/30', group: 'academic' },
 ];
 
 const getCategoryStyle = (cat: string) => categories.find(c => c.value === cat)?.color || categories[3].color;
@@ -151,6 +155,7 @@ const MistakesPage: React.FC = () => {
     resolved: mistakes.filter(m => m.is_resolved).length,
     conceptual: mistakes.filter(m => m.category === 'conceptual' && !m.is_resolved).length,
     silly: mistakes.filter(m => m.category === 'silly' && !m.is_resolved).length,
+    personal: mistakes.filter(m => categories.find(c => c.value === m.category)?.group === 'personal' && !m.is_resolved).length,
   };
 
   const MistakeForm = ({ onSave, saveLabel }: { onSave: () => void; saveLabel: string }) => (
@@ -169,9 +174,12 @@ const MistakesPage: React.FC = () => {
       <Textarea placeholder="Correct approach / solution" value={formCorrection} onChange={e => setFormCorrection(e.target.value)} rows={2} />
       <div className="flex gap-3 items-center">
         <Select value={formCategory} onValueChange={setFormCategory}>
-          <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-[200px]"><SelectValue /></SelectTrigger>
           <SelectContent>
-            {categories.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+            <p className="px-2 py-1 text-xs font-semibold text-muted-foreground">📚 Academic</p>
+            {categories.filter(c => c.group === 'academic').map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+            <p className="px-2 py-1 text-xs font-semibold text-muted-foreground mt-1">🧠 Personal</p>
+            {categories.filter(c => c.group === 'personal').map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
           </SelectContent>
         </Select>
         <Button onClick={onSave}><Save className="w-4 h-4 mr-1" /> {saveLabel}</Button>
@@ -197,12 +205,13 @@ const MistakesPage: React.FC = () => {
         </motion.div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           {[
             { label: 'Total', value: stats.total, icon: AlertCircle },
             { label: 'Resolved', value: stats.resolved, icon: CheckCircle2 },
             { label: 'Conceptual', value: stats.conceptual, icon: BookOpen },
             { label: 'Silly', value: stats.silly, icon: AlertCircle },
+            { label: 'Personal', value: stats.personal, icon: AlertCircle },
           ].map((s, i) => (
             <GlassCard key={i} className="text-center py-4">
               <s.icon className="w-5 h-5 mx-auto mb-1 text-primary" />
@@ -238,7 +247,10 @@ const MistakesPage: React.FC = () => {
             <SelectTrigger className="w-[150px] h-8 text-xs"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Categories</SelectItem>
-              {categories.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+              <p className="px-2 py-1 text-xs font-semibold text-muted-foreground">📚 Academic</p>
+              {categories.filter(c => c.group === 'academic').map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+              <p className="px-2 py-1 text-xs font-semibold text-muted-foreground mt-1">🧠 Personal</p>
+              {categories.filter(c => c.group === 'personal').map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
             </SelectContent>
           </Select>
           <button
