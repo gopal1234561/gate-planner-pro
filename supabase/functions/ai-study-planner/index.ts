@@ -9,17 +9,22 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { subjects, completedTopics, dailyHours, targetYear, missedDays, userPrompt } = await req.json();
+    const { subjects, completedTopics, dailyHours, targetYear, missedDays, userPrompt, branch, targetScore, examDate, weakSubjects } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
     const systemPrompt = `You are an expert GATE exam study planner. Create detailed, actionable study plans for GATE ${targetYear} preparation.
+Branch: ${branch || 'CSE'}
+${targetScore ? `Target Score/Rank: ${targetScore}` : ''}
+${examDate ? `Exam Date: ${examDate}` : ''}
+${weakSubjects?.length ? `Weak Subjects (prioritize these): ${weakSubjects.join(', ')}` : ''}
 
 Rules:
 - Generate a weekly study plan (7 days) with specific topics and time allocations
 - Each day should have ${dailyHours} hours of study time
-- Prioritize subjects that need more revision
-- Include breaks and revision slots
+- Prioritize weak subjects and those needing more revision
+- Include breaks, revision blocks, and mock test schedule slots
+- Generate a subject priority order based on weaknesses and exam proximity
 - If missed days are provided, redistribute those topics across remaining days
 - Return a JSON object with this structure:
 {
@@ -28,7 +33,7 @@ Rules:
       "day": "Monday",
       "date": "YYYY-MM-DD",
       "sessions": [
-        { "subject": "...", "topic": "...", "duration_hours": 1.5, "type": "new|revision|practice", "priority": "high|medium|low" }
+        { "subject": "...", "topic": "...", "duration_hours": 1.5, "type": "new|revision|practice|mock_test", "priority": "high|medium|low" }
       ],
       "totalHours": 6
     }
@@ -36,18 +41,23 @@ Rules:
   "dailySuggestions": [
     { "title": "...", "reason": "...", "priority": "high|medium|low", "estimatedMinutes": 45 }
   ],
+  "subjectPriority": ["Subject1", "Subject2"],
   "tips": ["tip1", "tip2"]
 }`;
 
     const finalPrompt = `Create a study plan with these details:
+- Branch: ${branch || 'CSE'}
 - Subjects: ${JSON.stringify(subjects)}
 - Already completed topics: ${JSON.stringify(completedTopics)}
 - Available hours per day: ${dailyHours}
 - Target: GATE ${targetYear}
-${missedDays ? `- Missed days to reschedule: ${JSON.stringify(missedDays)}. IMPORTANT: Redistribute the topics from these missed days across the remaining days of the week.` : ''}
-${userPrompt ? `- Additional instructions from student: ${userPrompt}` : ''}
+${targetScore ? `- Target Score/Rank: ${targetScore}` : ''}
+${examDate ? `- Exam Date: ${examDate}` : ''}
+${weakSubjects?.length ? `- Weak Subjects: ${weakSubjects.join(', ')}` : ''}
+${missedDays ? `- Missed days to reschedule: ${JSON.stringify(missedDays)}. Redistribute the topics from these missed days across the remaining days.` : ''}
+${userPrompt ? `- Additional instructions: ${userPrompt}` : ''}
 
-Generate the weekly plan starting from today and provide 3-5 daily suggestions for what to focus on today.`;
+Generate the weekly plan starting from today. Include mock test slots. Provide 3-5 daily suggestions and a subject priority order.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
