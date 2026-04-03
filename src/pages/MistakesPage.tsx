@@ -247,7 +247,10 @@ const MistakesPage: React.FC = () => {
             <SelectTrigger className="w-[150px] h-8 text-xs"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Categories</SelectItem>
-              {categories.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+              <p className="px-2 py-1 text-xs font-semibold text-muted-foreground">📚 Academic</p>
+              {categories.filter(c => c.group === 'academic').map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+              <p className="px-2 py-1 text-xs font-semibold text-muted-foreground mt-1">🧠 Personal</p>
+              {categories.filter(c => c.group === 'personal').map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
             </SelectContent>
           </Select>
           <button
