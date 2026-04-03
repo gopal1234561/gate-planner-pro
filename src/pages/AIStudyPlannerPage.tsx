@@ -10,7 +10,9 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface StudySession {
   subject: string;
@@ -51,6 +53,8 @@ const typeColors = {
   practice: 'bg-orange-500/20 text-orange-400',
 };
 
+const branches = ['CSE', 'ECE', 'EEE', 'ME', 'CE', 'IN', 'CH', 'BM', 'Other'];
+
 const AIStudyPlannerPage: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -62,6 +66,10 @@ const AIStudyPlannerPage: React.FC = () => {
   const [selectedDay, setSelectedDay] = useState(0);
   const [userPrompt, setUserPrompt] = useState('');
   const [missedDays, setMissedDays] = useState<string[]>([]);
+  const [branch, setBranch] = useState('CSE');
+  const [targetScore, setTargetScore] = useState('');
+  const [examDate, setExamDate] = useState('2027-02-01');
+  const [weakSubjects, setWeakSubjects] = useState<string[]>([]);
 
   useEffect(() => {
     if (user) fetchUserData();
@@ -94,6 +102,10 @@ const AIStudyPlannerPage: React.FC = () => {
           targetYear: 2027,
           missedDays: missedDays.length > 0 ? missedDays : undefined,
           userPrompt: userPrompt.trim() || undefined,
+          branch,
+          targetScore: targetScore.trim() || undefined,
+          examDate,
+          weakSubjects: weakSubjects.length > 0 ? weakSubjects : undefined,
         },
       });
 
@@ -137,6 +149,53 @@ const AIStudyPlannerPage: React.FC = () => {
               {loading ? 'Generating...' : 'Generate Study Plan'}
             </Button>
           </div>
+
+          {/* Personalized Inputs */}
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-foreground">Branch</label>
+              <Select value={branch} onValueChange={setBranch}>
+                <SelectTrigger className="bg-muted/50"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {branches.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-foreground">Target Score / Rank</label>
+              <Input placeholder="e.g. 650+ or AIR < 500" value={targetScore} onChange={e => setTargetScore(e.target.value)} className="bg-muted/50" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-foreground">Exam Date</label>
+              <Input type="date" value={examDate} onChange={e => setExamDate(e.target.value)} className="bg-muted/50" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-foreground">Daily Hours</label>
+              <Input type="number" min={1} max={16} value={dailyHours} onChange={e => setDailyHours(Number(e.target.value))} className="bg-muted/50" />
+            </div>
+          </div>
+
+          {/* Weak Subjects */}
+          {subjects.length > 0 && (
+            <div className="mt-4 space-y-2">
+              <label className="text-sm font-medium text-foreground">Weak Subjects</label>
+              <div className="flex flex-wrap gap-2">
+                {subjects.map(s => (
+                  <label key={s.id} className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
+                    <Checkbox
+                      checked={weakSubjects.includes(s.name)}
+                      onCheckedChange={(checked) => {
+                        setWeakSubjects(prev =>
+                          checked ? [...prev, s.name] : prev.filter(n => n !== s.name)
+                        );
+                      }}
+                    />
+                    {s.name}
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Custom Prompt */}
           <div className="mt-4 space-y-2">

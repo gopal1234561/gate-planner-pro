@@ -58,6 +58,53 @@ export type Database = {
           },
         ]
       }
+      mistakes: {
+        Row: {
+          category: string | null
+          correction: string | null
+          created_at: string
+          id: string
+          is_resolved: boolean | null
+          mistake_text: string
+          subject_id: string | null
+          topic: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          correction?: string | null
+          created_at?: string
+          id?: string
+          is_resolved?: boolean | null
+          mistake_text: string
+          subject_id?: string | null
+          topic?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          correction?: string | null
+          created_at?: string
+          id?: string
+          is_resolved?: boolean | null
+          mistake_text?: string
+          subject_id?: string | null
+          topic?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mistakes_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mock_tests: {
         Row: {
           created_at: string
