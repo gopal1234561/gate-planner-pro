@@ -148,6 +148,53 @@ const AIStudyPlannerPage: React.FC = () => {
             </Button>
           </div>
 
+          {/* Personalized Inputs */}
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-foreground">Branch</label>
+              <Select value={branch} onValueChange={setBranch}>
+                <SelectTrigger className="bg-muted/50"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {branches.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-foreground">Target Score / Rank</label>
+              <Input placeholder="e.g. 650+ or AIR < 500" value={targetScore} onChange={e => setTargetScore(e.target.value)} className="bg-muted/50" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-foreground">Exam Date</label>
+              <Input type="date" value={examDate} onChange={e => setExamDate(e.target.value)} className="bg-muted/50" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-foreground">Daily Hours</label>
+              <Input type="number" min={1} max={16} value={dailyHours} onChange={e => setDailyHours(Number(e.target.value))} className="bg-muted/50" />
+            </div>
+          </div>
+
+          {/* Weak Subjects */}
+          {subjects.length > 0 && (
+            <div className="mt-4 space-y-2">
+              <label className="text-sm font-medium text-foreground">Weak Subjects</label>
+              <div className="flex flex-wrap gap-2">
+                {subjects.map(s => (
+                  <label key={s.id} className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
+                    <Checkbox
+                      checked={weakSubjects.includes(s.name)}
+                      onCheckedChange={(checked) => {
+                        setWeakSubjects(prev =>
+                          checked ? [...prev, s.name] : prev.filter(n => n !== s.name)
+                        );
+                      }}
+                    />
+                    {s.name}
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Custom Prompt */}
           <div className="mt-4 space-y-2">
             <label className="text-sm font-medium text-foreground">Custom Instructions (optional)</label>
