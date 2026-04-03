@@ -100,6 +100,10 @@ const AIStudyPlannerPage: React.FC = () => {
           targetYear: 2027,
           missedDays: missedDays.length > 0 ? missedDays : undefined,
           userPrompt: userPrompt.trim() || undefined,
+          branch,
+          targetScore: targetScore.trim() || undefined,
+          examDate,
+          weakSubjects: weakSubjects.length > 0 ? weakSubjects : undefined,
         },
       });
 
