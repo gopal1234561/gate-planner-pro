@@ -41,6 +41,7 @@ const navItems = [
   { icon: FileText, label: 'Mock Tests', path: '/mock-tests' },
   { icon: StickyNote, label: 'Notes', path: '/notes' },
   { icon: FlaskConical, label: 'Formulas', path: '/formulas' },
+  { icon: AlertCircle, label: 'Mistakes', path: '/mistakes' },
   { icon: TrendingUp, label: 'Progress', path: '/progress' },
   { icon: Timer, label: 'Focus Timer', path: '/focus-timer' },
   { icon: User, label: 'Profile', path: '/profile' },
