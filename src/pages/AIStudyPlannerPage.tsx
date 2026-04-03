@@ -51,6 +51,8 @@ const typeColors = {
   practice: 'bg-orange-500/20 text-orange-400',
 };
 
+const branches = ['CSE', 'ECE', 'EEE', 'ME', 'CE', 'IN', 'CH', 'BM', 'Other'];
+
 const AIStudyPlannerPage: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -62,6 +64,10 @@ const AIStudyPlannerPage: React.FC = () => {
   const [selectedDay, setSelectedDay] = useState(0);
   const [userPrompt, setUserPrompt] = useState('');
   const [missedDays, setMissedDays] = useState<string[]>([]);
+  const [branch, setBranch] = useState('CSE');
+  const [targetScore, setTargetScore] = useState('');
+  const [examDate, setExamDate] = useState('2027-02-01');
+  const [weakSubjects, setWeakSubjects] = useState<string[]>([]);
 
   useEffect(() => {
     if (user) fetchUserData();
