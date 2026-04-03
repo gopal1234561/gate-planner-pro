@@ -121,7 +121,7 @@ Generate the weekly plan starting from today. Include mock test slots. Provide 3
                   subjectPriority: { type: "array", items: { type: "string" } },
                   tips: { type: "array", items: { type: "string" } },
                 },
-                required: ["weeklyPlan", "dailySuggestions", "tips"],
+                required: ["weeklyPlan", "dailySuggestions", "subjectPriority", "tips"],
               },
             },
           },
