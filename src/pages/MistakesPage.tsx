@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, Plus, Trash2, Edit2, Save, X, BookOpen, CheckCircle2, Filter } from 'lucide-react';
+import { AlertCircle, Plus, Trash2, Edit2, X, BookOpen, CheckCircle2, Filter } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
+import { MistakeForm } from '@/components/mistakes/MistakeForm';
 
 interface Mistake {
   id: string;
@@ -56,7 +55,6 @@ const MistakesPage: React.FC = () => {
   const [filterCategory, setFilterCategory] = useState('all');
   const [showResolved, setShowResolved] = useState(false);
 
-  // Form state
   const [formSubjectId, setFormSubjectId] = useState<string>('none');
   const [formTopic, setFormTopic] = useState('');
   const [formMistake, setFormMistake] = useState('');
@@ -158,34 +156,11 @@ const MistakesPage: React.FC = () => {
     personal: mistakes.filter(m => categories.find(c => c.value === m.category)?.group === 'personal' && !m.is_resolved).length,
   };
 
-  const MistakeForm = ({ onSave, saveLabel }: { onSave: () => void; saveLabel: string }) => (
-    <div className="space-y-3">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <Select value={formSubjectId} onValueChange={setFormSubjectId}>
-          <SelectTrigger><SelectValue placeholder="Subject" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">No subject</SelectItem>
-            {subjects.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
-          </SelectContent>
-        </Select>
-        <Input placeholder="Topic (optional)" value={formTopic} onChange={e => setFormTopic(e.target.value)} />
-      </div>
-      <Textarea placeholder="What was the mistake? *" value={formMistake} onChange={e => setFormMistake(e.target.value)} rows={2} />
-      <Textarea placeholder="Correct approach / solution" value={formCorrection} onChange={e => setFormCorrection(e.target.value)} rows={2} />
-      <div className="flex gap-3 items-center">
-        <Select value={formCategory} onValueChange={setFormCategory}>
-          <SelectTrigger className="w-[200px]"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <p className="px-2 py-1 text-xs font-semibold text-muted-foreground">📚 Academic</p>
-            {categories.filter(c => c.group === 'academic').map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
-            <p className="px-2 py-1 text-xs font-semibold text-muted-foreground mt-1">🧠 Personal</p>
-            {categories.filter(c => c.group === 'personal').map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
-          </SelectContent>
-        </Select>
-        <Button onClick={onSave}><Save className="w-4 h-4 mr-1" /> {saveLabel}</Button>
-      </div>
-    </div>
-  );
+  const formProps = {
+    subjects, formSubjectId, setFormSubjectId, formTopic, setFormTopic,
+    formMistake, setFormMistake, formCorrection, setFormCorrection,
+    formCategory, setFormCategory,
+  };
 
   return (
     <DashboardLayout>
@@ -227,7 +202,7 @@ const MistakesPage: React.FC = () => {
             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
               <GlassCard>
                 <h3 className="font-semibold mb-3">Log a New Mistake</h3>
-                <MistakeForm onSave={addMistake} saveLabel="Save" />
+                <MistakeForm {...formProps} onSave={addMistake} saveLabel="Save" />
               </GlassCard>
             </motion.div>
           )}
@@ -269,7 +244,7 @@ const MistakesPage: React.FC = () => {
                 <GlassCard className={m.is_resolved ? 'opacity-60' : ''}>
                   {editingId === m.id ? (
                     <div>
-                      <MistakeForm onSave={() => saveEdit(m.id)} saveLabel="Update" />
+                      <MistakeForm {...formProps} onSave={() => saveEdit(m.id)} saveLabel="Update" />
                       <Button size="sm" variant="ghost" className="mt-2" onClick={() => { setEditingId(null); resetForm(); }}>
                         <X className="w-3 h-3 mr-1" /> Cancel
                       </Button>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Brain, Sparkles, Clock, BookOpen, AlertTriangle, Loader2, Lightbulb, Calendar } from 'lucide-react';
+import { Brain, Sparkles, Clock, BookOpen, AlertTriangle, Loader2, Lightbulb, Calendar, MessageSquare, Send } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Button } from '@/components/ui/button';
@@ -71,6 +71,11 @@ const AIStudyPlannerPage: React.FC = () => {
   const [examDate, setExamDate] = useState('2027-02-01');
   const [weakSubjects, setWeakSubjects] = useState<string[]>([]);
 
+  // Doubt solver state
+  const [doubtQuery, setDoubtQuery] = useState('');
+  const [doubtAnswer, setDoubtAnswer] = useState('');
+  const [doubtLoading, setDoubtLoading] = useState(false);
+
   useEffect(() => {
     if (user) fetchUserData();
   }, [user]);
@@ -118,6 +123,41 @@ const AIStudyPlannerPage: React.FC = () => {
       toast({ title: 'Error', description: err.message || 'Failed to generate plan', variant: 'destructive' });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const solveDoubt = async () => {
+    if (!doubtQuery.trim()) return;
+    setDoubtLoading(true);
+    setDoubtAnswer('');
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-study-planner', {
+        body: {
+          subjects: subjects.map(s => s.name),
+          completedTopics: [],
+          dailyHours,
+          targetYear: 2027,
+          branch,
+          userPrompt: `DOUBT SOLVING MODE: The student has the following doubt/question. Please answer it clearly and concisely with examples if needed. Do NOT generate a study plan. Just answer the doubt.\n\nDoubt: ${doubtQuery}`,
+          solveDoubt: true,
+        },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      // The response might come as tips or as raw text
+      if (data?.tips?.length) {
+        setDoubtAnswer(data.tips.join('\n\n'));
+      } else if (typeof data === 'string') {
+        setDoubtAnswer(data);
+      } else {
+        setDoubtAnswer(JSON.stringify(data, null, 2));
+      }
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message || 'Failed to solve doubt', variant: 'destructive' });
+    } finally {
+      setDoubtLoading(false);
     }
   };
 
@@ -231,6 +271,41 @@ const AIStudyPlannerPage: React.FC = () => {
           </div>
         </GlassCard>
 
+        {/* Doubt Solver */}
+        <GlassCard delay={0.05}>
+          <h3 className="font-semibold mb-4 flex items-center gap-2">
+            <MessageSquare className="w-5 h-5 text-primary" />
+            Ask a Doubt
+          </h3>
+          <p className="text-sm text-muted-foreground mb-3">
+            Ask any GATE-related doubt and get an AI-powered explanation instantly.
+          </p>
+          <div className="flex gap-2">
+            <Textarea
+              placeholder="E.g. Explain Dijkstra's algorithm with an example, What is the difference between mutex and semaphore..."
+              value={doubtQuery}
+              onChange={(e) => setDoubtQuery(e.target.value)}
+              className="bg-muted/50 border-border resize-none flex-1"
+              rows={2}
+            />
+            <Button onClick={solveDoubt} disabled={doubtLoading || !doubtQuery.trim()} className="self-end">
+              {doubtLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            </Button>
+          </div>
+          {doubtAnswer && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-4 p-4 rounded-xl bg-muted/50 border border-border"
+            >
+              <p className="text-xs font-semibold text-primary mb-2">💡 Answer:</p>
+              <div className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
+                {doubtAnswer}
+              </div>
+            </motion.div>
+          )}
+        </GlassCard>
+
         {plan && (
           <>
             {/* Daily Suggestions */}
@@ -269,7 +344,6 @@ const AIStudyPlannerPage: React.FC = () => {
                 Weekly Study Plan
               </h3>
 
-              {/* Day Tabs */}
               <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
                 {plan.weeklyPlan?.map((day, i) => (
                   <button
@@ -286,7 +360,6 @@ const AIStudyPlannerPage: React.FC = () => {
                 ))}
               </div>
 
-              {/* Day Sessions */}
               {plan.weeklyPlan?.[selectedDay] && (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between mb-2">

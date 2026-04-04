@@ -17,6 +17,7 @@ import { format } from 'date-fns';
 import { Progress } from '@/components/ui/progress';
 import { StressBurstMode } from '@/components/StressBurstMode';
 import { DailyReminders } from '@/components/DailyReminders';
+import { MotivationalCard } from '@/components/dashboard/MotivationalCard';
 
 interface DashboardStats {
   todayTasks: number;
@@ -219,6 +220,9 @@ const DashboardPage: React.FC = () => {
             </p>
           )}
         </GlassCard>
+
+        {/* Motivational Quote */}
+        <MotivationalCard />
 
         {/* Daily Reminders */}
         <DailyReminders />
