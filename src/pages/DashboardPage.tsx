@@ -221,6 +221,9 @@ const DashboardPage: React.FC = () => {
           )}
         </GlassCard>
 
+        {/* Motivational Quote */}
+        <MotivationalCard />
+
         {/* Daily Reminders */}
         <DailyReminders />
 

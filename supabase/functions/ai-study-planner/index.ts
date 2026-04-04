@@ -9,9 +9,47 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { subjects, completedTopics, dailyHours, targetYear, missedDays, userPrompt, branch, targetScore, examDate, weakSubjects } = await req.json();
+    const { subjects, completedTopics, dailyHours, targetYear, missedDays, userPrompt, branch, targetScore, examDate, weakSubjects, solveDoubt } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+
+    // Doubt solving mode
+    if (solveDoubt && userPrompt) {
+      const doubtResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-3-flash-preview",
+          messages: [
+            { role: "system", content: `You are an expert GATE exam tutor for ${branch || 'CSE'} branch. Answer student doubts clearly with examples, diagrams (in text), and step-by-step explanations. Be concise but thorough.` },
+            { role: "user", content: userPrompt },
+          ],
+        }),
+      });
+
+      if (!doubtResponse.ok) {
+        if (doubtResponse.status === 429) {
+          return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), {
+            status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        if (doubtResponse.status === 402) {
+          return new Response(JSON.stringify({ error: "AI credits exhausted. Please add credits." }), {
+            status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        throw new Error("AI gateway error");
+      }
+
+      const doubtData = await doubtResponse.json();
+      const answer = doubtData.choices?.[0]?.message?.content || "Could not generate an answer.";
+      return new Response(JSON.stringify({ tips: [answer] }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const systemPrompt = `You are an expert GATE exam study planner. Create detailed, actionable study plans for GATE ${targetYear} preparation.
 Branch: ${branch || 'CSE'}
@@ -152,7 +190,6 @@ Generate the weekly plan starting from today. Include mock test slots. Provide 3
     if (toolCall) {
       plan = JSON.parse(toolCall.function.arguments);
     } else {
-      // Fallback: try to parse from content
       const content = data.choices?.[0]?.message?.content || "{}";
       plan = JSON.parse(content);
     }
