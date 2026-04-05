@@ -8,13 +8,17 @@ import {
   BookOpen,
   Calendar,
   Flame,
+  ClipboardList,
+  ArrowRight,
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { GlassCard } from '@/components/ui/GlassCard';
+import { GradientButton } from '@/components/ui/GradientButton';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { format } from 'date-fns';
 import { Progress } from '@/components/ui/progress';
+import { useNavigate } from 'react-router-dom';
 import { StressBurstMode } from '@/components/StressBurstMode';
 import { DailyReminders } from '@/components/DailyReminders';
 import { MotivationalCard } from '@/components/dashboard/MotivationalCard';
@@ -37,7 +41,9 @@ const DashboardPage: React.FC = () => {
     streak: 0,
   });
   const [recentTasks, setRecentTasks] = useState<any[]>([]);
+  const [trackerStats, setTrackerStats] = useState({ total: 0, completed: 0, pending: 0, totalHours: 0, totalPyqs: 0 });
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (user) {
@@ -90,6 +96,23 @@ const DashboardPage: React.FC = () => {
     });
 
     setRecentTasks(allTasks || []);
+
+    // Fetch manual tracker stats
+    const { data: trackerData } = await supabase
+      .from('manual_tracker')
+      .select('*')
+      .eq('user_id', user.id);
+
+    const trackerEntries = trackerData || [];
+    const completedTracker = trackerEntries.filter(e => e.is_completed).length;
+    setTrackerStats({
+      total: trackerEntries.length,
+      completed: completedTracker,
+      pending: trackerEntries.length - completedTracker,
+      totalHours: trackerEntries.reduce((acc, e) => acc + Number(e.hours_studied), 0),
+      totalPyqs: trackerEntries.reduce((acc, e) => acc + e.pyqs_solved, 0),
+    });
+
     setLoading(false);
   };
 
@@ -218,6 +241,46 @@ const DashboardPage: React.FC = () => {
             <p className="text-muted-foreground text-center py-8">
               No tasks yet. Start by adding your first task!
             </p>
+          )}
+        </GlassCard>
+
+        {/* Manual Tracker Summary */}
+        <GlassCard delay={0.7}>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold flex items-center gap-2">
+              <ClipboardList className="w-5 h-5 text-primary" />
+              Manual Tracker Summary
+            </h3>
+            <GradientButton size="sm" onClick={() => navigate('/manual-tracker')}>
+              Go to Tracker <ArrowRight className="w-4 h-4 ml-1" />
+            </GradientButton>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="text-center p-3 rounded-lg bg-muted/50">
+              <p className="text-2xl font-bold">{trackerStats.total}</p>
+              <p className="text-xs text-muted-foreground">Total Entries</p>
+            </div>
+            <div className="text-center p-3 rounded-lg bg-muted/50">
+              <p className="text-2xl font-bold text-green-500">{trackerStats.completed}</p>
+              <p className="text-xs text-muted-foreground">Completed</p>
+            </div>
+            <div className="text-center p-3 rounded-lg bg-muted/50">
+              <p className="text-2xl font-bold text-orange-500">{trackerStats.pending}</p>
+              <p className="text-xs text-muted-foreground">Pending</p>
+            </div>
+            <div className="text-center p-3 rounded-lg bg-muted/50">
+              <p className="text-2xl font-bold">{trackerStats.totalHours}h</p>
+              <p className="text-xs text-muted-foreground">Hours Studied</p>
+            </div>
+          </div>
+          {trackerStats.total > 0 && (
+            <div className="mt-4">
+              <div className="flex justify-between text-sm mb-1">
+                <span className="text-muted-foreground">Completion</span>
+                <span className="font-medium">{Math.round((trackerStats.completed / trackerStats.total) * 100)}%</span>
+              </div>
+              <Progress value={(trackerStats.completed / trackerStats.total) * 100} className="h-2" />
+            </div>
           )}
         </GlassCard>
 
