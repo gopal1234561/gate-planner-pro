@@ -88,6 +88,7 @@ const AppRoutes = () => {
       <Route path="/notes" element={<ProtectedRoute><NotesPage /></ProtectedRoute>} />
       <Route path="/formulas" element={<ProtectedRoute><FormulaSheetsPage /></ProtectedRoute>} />
       <Route path="/mistakes" element={<ProtectedRoute><MistakesPage /></ProtectedRoute>} />
+      <Route path="/manual-tracker" element={<ProtectedRoute><ManualTrackerPage /></ProtectedRoute>} />
       
       {/* Catch-all */}
       <Route path="*" element={<NotFound />} />
