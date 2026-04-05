@@ -129,7 +129,16 @@ const ManualTrackerPage: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold">Manual Tracker</h1>
-            <p className="text-muted-foreground">Track your study progress manually</p>
+            <p className="text-muted-foreground">
+              Track your study progress manually
+              {entries.length > 0 && (
+                <span className="ml-2 text-sm">
+                  — <span className="font-medium text-orange-500">{entries.filter(e => !e.is_completed).length} pending</span>
+                  {' · '}
+                  <span className="font-medium text-green-500">{entries.filter(e => e.is_completed).length} completed</span>
+                </span>
+              )}
+            </p>
           </div>
           <Dialog open={isAdding} onOpenChange={(open) => { setIsAdding(open); if (!open) resetForm(); }}>
             <DialogTrigger asChild>
