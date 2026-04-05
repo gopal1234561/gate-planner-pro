@@ -244,6 +244,46 @@ const DashboardPage: React.FC = () => {
           )}
         </GlassCard>
 
+        {/* Manual Tracker Summary */}
+        <GlassCard delay={0.7}>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold flex items-center gap-2">
+              <ClipboardList className="w-5 h-5 text-primary" />
+              Manual Tracker Summary
+            </h3>
+            <GradientButton size="sm" onClick={() => navigate('/manual-tracker')}>
+              Go to Tracker <ArrowRight className="w-4 h-4 ml-1" />
+            </GradientButton>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="text-center p-3 rounded-lg bg-muted/50">
+              <p className="text-2xl font-bold">{trackerStats.total}</p>
+              <p className="text-xs text-muted-foreground">Total Entries</p>
+            </div>
+            <div className="text-center p-3 rounded-lg bg-muted/50">
+              <p className="text-2xl font-bold text-green-500">{trackerStats.completed}</p>
+              <p className="text-xs text-muted-foreground">Completed</p>
+            </div>
+            <div className="text-center p-3 rounded-lg bg-muted/50">
+              <p className="text-2xl font-bold text-orange-500">{trackerStats.pending}</p>
+              <p className="text-xs text-muted-foreground">Pending</p>
+            </div>
+            <div className="text-center p-3 rounded-lg bg-muted/50">
+              <p className="text-2xl font-bold">{trackerStats.totalHours}h</p>
+              <p className="text-xs text-muted-foreground">Hours Studied</p>
+            </div>
+          </div>
+          {trackerStats.total > 0 && (
+            <div className="mt-4">
+              <div className="flex justify-between text-sm mb-1">
+                <span className="text-muted-foreground">Completion</span>
+                <span className="font-medium">{Math.round((trackerStats.completed / trackerStats.total) * 100)}%</span>
+              </div>
+              <Progress value={(trackerStats.completed / trackerStats.total) * 100} className="h-2" />
+            </div>
+          )}
+        </GlassCard>
+
         {/* Motivational Quote */}
         <MotivationalCard />
 
