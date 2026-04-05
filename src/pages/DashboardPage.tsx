@@ -124,7 +124,7 @@ const DashboardPage: React.FC = () => {
     {
       icon: CheckCircle,
       label: "Today's Tasks",
-      value: `${stats.completedTasks}/${stats.todayTasks}`,
+      value: stats.todayTasks === 0 ? 'No tasks for today' : `${stats.completedTasks}/${stats.todayTasks}`,
       color: 'from-green-500 to-emerald-600',
     },
     {
