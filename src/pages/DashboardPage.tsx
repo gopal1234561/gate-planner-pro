@@ -124,7 +124,7 @@ const DashboardPage: React.FC = () => {
     {
       icon: CheckCircle,
       label: "Today's Tasks",
-      value: `${stats.completedTasks}/${stats.todayTasks}`,
+      value: stats.todayTasks === 0 ? 'No tasks for today' : `${stats.completedTasks}/${stats.todayTasks}`,
       color: 'from-green-500 to-emerald-600',
     },
     {
@@ -170,7 +170,7 @@ const DashboardPage: React.FC = () => {
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-muted-foreground text-sm">{stat.label}</p>
-                  <p className="text-3xl font-bold mt-1">{stat.value}</p>
+                  <p className={`font-bold mt-1 ${stat.value.length > 5 ? 'text-lg' : 'text-3xl'}`}>{stat.value}</p>
                 </div>
                 <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center`}>
                   <stat.icon className="w-6 h-6 text-white" />
