@@ -223,7 +223,6 @@ const DashboardPage: React.FC = () => {
               View All <ArrowRight className="w-4 h-4 ml-1" />
             </GradientButton>
           </div>
-          </h3>
           {recentTasks.length > 0 ? (
             <div className="space-y-3">
               {recentTasks.map((task) => (
