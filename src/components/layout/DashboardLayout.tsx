@@ -23,6 +23,7 @@ import {
   HelpCircle,
   FlaskConical,
   AlertCircle,
+  ClipboardList,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CountdownTimer } from '@/components/CountdownTimer';
