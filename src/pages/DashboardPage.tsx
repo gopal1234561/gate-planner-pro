@@ -214,9 +214,15 @@ const DashboardPage: React.FC = () => {
 
         {/* Recent Tasks */}
         <GlassCard delay={0.6}>
-          <h3 className="font-semibold mb-4 flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-primary" />
-            Recent Tasks
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-primary" />
+              Recent Tasks
+            </h3>
+            <GradientButton size="sm" onClick={() => navigate('/tasks')}>
+              View All <ArrowRight className="w-4 h-4 ml-1" />
+            </GradientButton>
+          </div>
           </h3>
           {recentTasks.length > 0 ? (
             <div className="space-y-3">
