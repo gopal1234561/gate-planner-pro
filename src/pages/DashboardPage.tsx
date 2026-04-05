@@ -96,6 +96,23 @@ const DashboardPage: React.FC = () => {
     });
 
     setRecentTasks(allTasks || []);
+
+    // Fetch manual tracker stats
+    const { data: trackerData } = await supabase
+      .from('manual_tracker')
+      .select('*')
+      .eq('user_id', user.id);
+
+    const trackerEntries = trackerData || [];
+    const completedTracker = trackerEntries.filter(e => e.is_completed).length;
+    setTrackerStats({
+      total: trackerEntries.length,
+      completed: completedTracker,
+      pending: trackerEntries.length - completedTracker,
+      totalHours: trackerEntries.reduce((acc, e) => acc + Number(e.hours_studied), 0),
+      totalPyqs: trackerEntries.reduce((acc, e) => acc + e.pyqs_solved, 0),
+    });
+
     setLoading(false);
   };
 
