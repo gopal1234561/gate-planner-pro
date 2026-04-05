@@ -41,7 +41,9 @@ const DashboardPage: React.FC = () => {
     streak: 0,
   });
   const [recentTasks, setRecentTasks] = useState<any[]>([]);
+  const [trackerStats, setTrackerStats] = useState({ total: 0, completed: 0, pending: 0, totalHours: 0, totalPyqs: 0 });
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (user) {
