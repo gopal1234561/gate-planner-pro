@@ -58,6 +58,51 @@ export type Database = {
           },
         ]
       }
+      manual_tracker: {
+        Row: {
+          created_at: string
+          hours_studied: number
+          id: string
+          is_completed: boolean
+          last_studied: string | null
+          notes: string | null
+          pyqs_solved: number
+          revision_count: number
+          subject: string
+          topic: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          hours_studied?: number
+          id?: string
+          is_completed?: boolean
+          last_studied?: string | null
+          notes?: string | null
+          pyqs_solved?: number
+          revision_count?: number
+          subject: string
+          topic: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          hours_studied?: number
+          id?: string
+          is_completed?: boolean
+          last_studied?: string | null
+          notes?: string | null
+          pyqs_solved?: number
+          revision_count?: number
+          subject?: string
+          topic?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       mistakes: {
         Row: {
           category: string | null
