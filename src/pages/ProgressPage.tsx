@@ -131,6 +131,30 @@ const ProgressPage: React.FC = () => {
 
     setWeeklyData(weekData);
 
+    // Fetch all study sessions grouped by date for daily log
+    const { data: allSessions } = await supabase
+      .from('study_sessions')
+      .select('session_date, duration_minutes')
+      .eq('user_id', user.id)
+      .order('session_date', { ascending: false });
+
+    const dateMap: Record<string, number> = {};
+    allSessions?.forEach(s => {
+      const d = s.session_date || '';
+      dateMap[d] = (dateMap[d] || 0) + s.duration_minutes;
+    });
+
+    const records: DailyStudyRecord[] = Object.entries(dateMap)
+      .filter(([_, mins]) => mins > 0)
+      .map(([date, mins]) => ({
+        date,
+        displayDate: format(new Date(date), 'dd MMM yyyy, EEEE'),
+        hours: Math.round((mins / 60) * 10) / 10,
+      }))
+      .sort((a, b) => b.date.localeCompare(a.date));
+
+    setDailyRecords(records);
+
     const totalHours = weekData.reduce((acc, d) => acc + d.hours, 0);
 
     setTotalStats({
