@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   TrendingUp, 
   BookOpen, 
   CheckCircle,
   Clock,
   Target,
+  ChevronDown,
+  ChevronUp,
+  CalendarDays,
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { GlassCard } from '@/components/ui/GlassCard';
@@ -33,10 +36,18 @@ interface SubjectProgress {
   completed: number;
 }
 
+interface DailyStudyRecord {
+  date: string;
+  displayDate: string;
+  hours: number;
+}
+
 const ProgressPage: React.FC = () => {
   const { user } = useAuth();
   const [subjectProgress, setSubjectProgress] = useState<SubjectProgress[]>([]);
   const [weeklyData, setWeeklyData] = useState<{ day: string; hours: number }[]>([]);
+  const [dailyRecords, setDailyRecords] = useState<DailyStudyRecord[]>([]);
+  const [showDailyLog, setShowDailyLog] = useState(false);
   const [totalStats, setTotalStats] = useState({
     totalTopics: 0,
     completedTopics: 0,
@@ -119,6 +130,30 @@ const ProgressPage: React.FC = () => {
     }
 
     setWeeklyData(weekData);
+
+    // Fetch all study sessions grouped by date for daily log
+    const { data: allSessions } = await supabase
+      .from('study_sessions')
+      .select('session_date, duration_minutes')
+      .eq('user_id', user.id)
+      .order('session_date', { ascending: false });
+
+    const dateMap: Record<string, number> = {};
+    allSessions?.forEach(s => {
+      const d = s.session_date || '';
+      dateMap[d] = (dateMap[d] || 0) + s.duration_minutes;
+    });
+
+    const records: DailyStudyRecord[] = Object.entries(dateMap)
+      .filter(([_, mins]) => mins > 0)
+      .map(([date, mins]) => ({
+        date,
+        displayDate: format(new Date(date), 'dd MMM yyyy, EEEE'),
+        hours: Math.round((mins / 60) * 10) / 10,
+      }))
+      .sort((a, b) => b.date.localeCompare(a.date));
+
+    setDailyRecords(records);
 
     const totalHours = weekData.reduce((acc, d) => acc + d.hours, 0);
 
@@ -280,6 +315,53 @@ const ProgressPage: React.FC = () => {
                 </div>
               </GlassCard>
             </div>
+
+            {/* Daily Study Hours Log */}
+            <GlassCard>
+              <button
+                onClick={() => setShowDailyLog(!showDailyLog)}
+                className="w-full flex items-center justify-between"
+              >
+                <h3 className="font-semibold flex items-center gap-2">
+                  <CalendarDays className="w-5 h-5 text-primary" />
+                  Hours Studied Per Day
+                </h3>
+                {showDailyLog ? (
+                  <ChevronUp className="w-5 h-5 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                )}
+              </button>
+              <AnimatePresence>
+                {showDailyLog && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="overflow-hidden"
+                  >
+                    {dailyRecords.length > 0 ? (
+                      <div className="mt-4 space-y-2 max-h-80 overflow-y-auto">
+                        {dailyRecords.map((record) => (
+                          <div
+                            key={record.date}
+                            className="flex items-center justify-between p-3 rounded-xl bg-muted/50 border border-border/50"
+                          >
+                            <span className="text-sm text-foreground">{record.displayDate}</span>
+                            <span className="text-sm font-semibold text-primary">{record.hours}h</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-muted-foreground text-center py-6 mt-4">
+                        No study sessions recorded yet
+                      </p>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </GlassCard>
 
             {/* Subject-wise Progress */}
             <GlassCard>
