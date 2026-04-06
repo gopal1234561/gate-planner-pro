@@ -60,12 +60,9 @@ const ProgressPage: React.FC = () => {
     totalHours: 0,
   });
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (user) {
-      fetchProgressData();
-    }
-  }, [user]);
+  const [logDate, setLogDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [logHours, setLogHours] = useState('');
+  const [logging, setLogging] = useState(false);
 
   const fetchProgressData = async () => {
     if (!user) return;
