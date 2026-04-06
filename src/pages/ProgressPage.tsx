@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   TrendingUp, 
   BookOpen, 
   CheckCircle,
   Clock,
   Target,
+  ChevronDown,
+  ChevronUp,
+  CalendarDays,
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { GlassCard } from '@/components/ui/GlassCard';
