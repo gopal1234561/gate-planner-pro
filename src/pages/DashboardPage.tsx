@@ -295,8 +295,6 @@ const DashboardPage: React.FC = () => {
         {/* Daily Reminders */}
         <DailyReminders />
 
-        {/* Stress Burst Mode */}
-        <StressBurstMode />
       </div>
     </DashboardLayout>
   );

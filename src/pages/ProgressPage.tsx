@@ -316,6 +316,53 @@ const ProgressPage: React.FC = () => {
               </GlassCard>
             </div>
 
+            {/* Daily Study Hours Log */}
+            <GlassCard>
+              <button
+                onClick={() => setShowDailyLog(!showDailyLog)}
+                className="w-full flex items-center justify-between"
+              >
+                <h3 className="font-semibold flex items-center gap-2">
+                  <CalendarDays className="w-5 h-5 text-primary" />
+                  Hours Studied Per Day
+                </h3>
+                {showDailyLog ? (
+                  <ChevronUp className="w-5 h-5 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                )}
+              </button>
+              <AnimatePresence>
+                {showDailyLog && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="overflow-hidden"
+                  >
+                    {dailyRecords.length > 0 ? (
+                      <div className="mt-4 space-y-2 max-h-80 overflow-y-auto">
+                        {dailyRecords.map((record) => (
+                          <div
+                            key={record.date}
+                            className="flex items-center justify-between p-3 rounded-xl bg-muted/50 border border-border/50"
+                          >
+                            <span className="text-sm text-foreground">{record.displayDate}</span>
+                            <span className="text-sm font-semibold text-primary">{record.hours}h</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-muted-foreground text-center py-6 mt-4">
+                        No study sessions recorded yet
+                      </p>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </GlassCard>
+
             {/* Subject-wise Progress */}
             <GlassCard>
               <h3 className="font-semibold mb-6">Subject-wise Progress</h3>
