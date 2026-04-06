@@ -36,10 +36,18 @@ interface SubjectProgress {
   completed: number;
 }
 
+interface DailyStudyRecord {
+  date: string;
+  displayDate: string;
+  hours: number;
+}
+
 const ProgressPage: React.FC = () => {
   const { user } = useAuth();
   const [subjectProgress, setSubjectProgress] = useState<SubjectProgress[]>([]);
   const [weeklyData, setWeeklyData] = useState<{ day: string; hours: number }[]>([]);
+  const [dailyRecords, setDailyRecords] = useState<DailyStudyRecord[]>([]);
+  const [showDailyLog, setShowDailyLog] = useState(false);
   const [totalStats, setTotalStats] = useState({
     totalTopics: 0,
     completedTopics: 0,
