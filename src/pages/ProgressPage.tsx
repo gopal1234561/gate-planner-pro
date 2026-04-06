@@ -9,13 +9,17 @@ import {
   ChevronDown,
   ChevronUp,
   CalendarDays,
+  Plus,
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Progress } from '@/components/ui/progress';
+import { Input } from '@/components/ui/input';
+import { GradientButton } from '@/components/ui/GradientButton';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { format, subDays, startOfDay, endOfDay } from 'date-fns';
+import { toast } from 'sonner';
 import { 
   BarChart, 
   Bar, 
@@ -56,12 +60,37 @@ const ProgressPage: React.FC = () => {
     totalHours: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [logDate, setLogDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [logHours, setLogHours] = useState('');
+  const [logging, setLogging] = useState(false);
 
   useEffect(() => {
     if (user) {
       fetchProgressData();
     }
   }, [user]);
+
+  const handleLogStudyHours = async () => {
+    if (!user || !logHours || parseFloat(logHours) <= 0) {
+      toast.error('Please enter valid hours');
+      return;
+    }
+    setLogging(true);
+    const minutes = Math.round(parseFloat(logHours) * 60);
+    const { error } = await supabase.from('study_sessions').insert({
+      user_id: user.id,
+      duration_minutes: minutes,
+      session_date: logDate,
+    });
+    if (error) {
+      toast.error('Failed to log study hours');
+    } else {
+      toast.success('Study hours logged!');
+      setLogHours('');
+      fetchProgressData();
+    }
+    setLogging(false);
+  };
 
   const fetchProgressData = async () => {
     if (!user) return;
@@ -315,6 +344,34 @@ const ProgressPage: React.FC = () => {
                 </div>
               </GlassCard>
             </div>
+
+            {/* Log Study Hours */}
+            <GlassCard>
+              <h3 className="font-semibold mb-4 flex items-center gap-2">
+                <Plus className="w-5 h-5 text-primary" />
+                Log Study Hours
+              </h3>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Input
+                  type="date"
+                  value={logDate}
+                  onChange={(e) => setLogDate(e.target.value)}
+                  className="sm:w-44"
+                />
+                <Input
+                  type="number"
+                  min="0.1"
+                  step="0.1"
+                  placeholder="Hours (e.g. 2.5)"
+                  value={logHours}
+                  onChange={(e) => setLogHours(e.target.value)}
+                  className="sm:w-44"
+                />
+                <GradientButton onClick={handleLogStudyHours} disabled={logging}>
+                  {logging ? 'Logging...' : 'Log Hours'}
+                </GradientButton>
+              </div>
+            </GlassCard>
 
             {/* Daily Study Hours Log */}
             <GlassCard>
