@@ -64,6 +64,34 @@ const ProgressPage: React.FC = () => {
   const [logHours, setLogHours] = useState('');
   const [logging, setLogging] = useState(false);
 
+  useEffect(() => {
+    if (user) {
+      fetchProgressData();
+    }
+  }, [user]);
+
+  const handleLogStudyHours = async () => {
+    if (!user || !logHours || parseFloat(logHours) <= 0) {
+      toast.error('Please enter valid hours');
+      return;
+    }
+    setLogging(true);
+    const minutes = Math.round(parseFloat(logHours) * 60);
+    const { error } = await supabase.from('study_sessions').insert({
+      user_id: user.id,
+      duration_minutes: minutes,
+      session_date: logDate,
+    });
+    if (error) {
+      toast.error('Failed to log study hours');
+    } else {
+      toast.success('Study hours logged!');
+      setLogHours('');
+      fetchProgressData();
+    }
+    setLogging(false);
+  };
+
   const fetchProgressData = async () => {
     if (!user) return;
 
