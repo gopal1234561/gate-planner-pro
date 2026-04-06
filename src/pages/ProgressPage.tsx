@@ -9,13 +9,17 @@ import {
   ChevronDown,
   ChevronUp,
   CalendarDays,
+  Plus,
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Progress } from '@/components/ui/progress';
+import { Input } from '@/components/ui/input';
+import { GradientButton } from '@/components/ui/GradientButton';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { format, subDays, startOfDay, endOfDay } from 'date-fns';
+import { toast } from 'sonner';
 import { 
   BarChart, 
   Bar, 
