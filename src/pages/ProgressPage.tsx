@@ -345,6 +345,34 @@ const ProgressPage: React.FC = () => {
               </GlassCard>
             </div>
 
+            {/* Log Study Hours */}
+            <GlassCard>
+              <h3 className="font-semibold mb-4 flex items-center gap-2">
+                <Plus className="w-5 h-5 text-primary" />
+                Log Study Hours
+              </h3>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Input
+                  type="date"
+                  value={logDate}
+                  onChange={(e) => setLogDate(e.target.value)}
+                  className="sm:w-44"
+                />
+                <Input
+                  type="number"
+                  min="0.1"
+                  step="0.1"
+                  placeholder="Hours (e.g. 2.5)"
+                  value={logHours}
+                  onChange={(e) => setLogHours(e.target.value)}
+                  className="sm:w-44"
+                />
+                <GradientButton onClick={handleLogStudyHours} disabled={logging}>
+                  {logging ? 'Logging...' : 'Log Hours'}
+                </GradientButton>
+              </div>
+            </GlassCard>
+
             {/* Daily Study Hours Log */}
             <GlassCard>
               <button
