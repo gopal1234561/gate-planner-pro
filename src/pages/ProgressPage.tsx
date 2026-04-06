@@ -10,15 +10,20 @@ import {
   ChevronUp,
   CalendarDays,
   Plus,
+  Trash2,
+  Pencil,
+  X,
+  Check,
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
 import { GradientButton } from '@/components/ui/GradientButton';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { format, subDays, startOfDay, endOfDay } from 'date-fns';
+import { format, subDays } from 'date-fns';
 import { toast } from 'sonner';
 import { 
   BarChart, 
@@ -41,9 +46,18 @@ interface SubjectProgress {
 }
 
 interface DailyStudyRecord {
+  id: string;
   date: string;
   displayDate: string;
   hours: number;
+  subjectName: string | null;
+  subjectId: string | null;
+  durationMinutes: number;
+}
+
+interface SubjectOption {
+  id: string;
+  name: string;
 }
 
 const ProgressPage: React.FC = () => {
@@ -52,6 +66,7 @@ const ProgressPage: React.FC = () => {
   const [weeklyData, setWeeklyData] = useState<{ day: string; hours: number }[]>([]);
   const [dailyRecords, setDailyRecords] = useState<DailyStudyRecord[]>([]);
   const [showDailyLog, setShowDailyLog] = useState(false);
+  const [subjects, setSubjects] = useState<SubjectOption[]>([]);
   const [totalStats, setTotalStats] = useState({
     totalTopics: 0,
     completedTopics: 0,
@@ -62,7 +77,14 @@ const ProgressPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [logDate, setLogDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [logHours, setLogHours] = useState('');
+  const [logSubject, setLogSubject] = useState<string>('none');
   const [logging, setLogging] = useState(false);
+
+  // Edit state
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editHours, setEditHours] = useState('');
+  const [editDate, setEditDate] = useState('');
+  const [editSubject, setEditSubject] = useState<string>('none');
 
   useEffect(() => {
     if (user) {
@@ -81,31 +103,75 @@ const ProgressPage: React.FC = () => {
       user_id: user.id,
       duration_minutes: minutes,
       session_date: logDate,
+      subject_id: logSubject === 'none' ? null : logSubject,
     });
     if (error) {
       toast.error('Failed to log study hours');
     } else {
       toast.success('Study hours logged!');
       setLogHours('');
+      setLogSubject('none');
       fetchProgressData();
     }
     setLogging(false);
   };
 
+  const handleDeleteSession = async (id: string) => {
+    const { error } = await supabase.from('study_sessions').delete().eq('id', id);
+    if (error) {
+      toast.error('Failed to delete');
+    } else {
+      toast.success('Deleted');
+      fetchProgressData();
+    }
+  };
+
+  const handleStartEdit = (record: DailyStudyRecord) => {
+    setEditingId(record.id);
+    setEditHours(String(record.hours));
+    setEditDate(record.date);
+    setEditSubject(record.subjectId || 'none');
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingId || !editHours || parseFloat(editHours) <= 0) {
+      toast.error('Please enter valid hours');
+      return;
+    }
+    const minutes = Math.round(parseFloat(editHours) * 60);
+    const { error } = await supabase.from('study_sessions').update({
+      duration_minutes: minutes,
+      session_date: editDate,
+      subject_id: editSubject === 'none' ? null : editSubject,
+    }).eq('id', editingId);
+    if (error) {
+      toast.error('Failed to update');
+    } else {
+      toast.success('Updated');
+      setEditingId(null);
+      fetchProgressData();
+    }
+  };
+
   const fetchProgressData = async () => {
     if (!user) return;
 
-    // Fetch subjects with topics
-    const { data: subjects } = await supabase
+    // Fetch subjects
+    const { data: subjectsData } = await supabase
       .from('subjects')
       .select('id, name, color')
       .eq('user_id', user.id);
+
+    setSubjects((subjectsData || []).map(s => ({ id: s.id, name: s.name })));
+
+    const subjectMap: Record<string, string> = {};
+    (subjectsData || []).forEach(s => { subjectMap[s.id] = s.name; });
 
     const subjectProgressData: SubjectProgress[] = [];
     let totalTopics = 0;
     let completedTopics = 0;
 
-    for (const subject of subjects || []) {
+    for (const subject of subjectsData || []) {
       const { data: topics } = await supabase
         .from('topics')
         .select('is_completed')
@@ -113,23 +179,20 @@ const ProgressPage: React.FC = () => {
 
       const total = topics?.length || 0;
       const completed = topics?.filter(t => t.is_completed).length || 0;
-      
       totalTopics += total;
       completedTopics += completed;
 
       if (total > 0) {
         subjectProgressData.push({
           name: subject.name,
-          color: subject.color,
+          color: subject.color || '#8B5CF6',
           total,
           completed,
         });
       }
     }
-
     setSubjectProgress(subjectProgressData);
 
-    // Fetch tasks stats
     const { data: allTasks } = await supabase
       .from('tasks')
       .select('is_completed')
@@ -138,12 +201,10 @@ const ProgressPage: React.FC = () => {
     const totalTasks = allTasks?.length || 0;
     const completedTasks = allTasks?.filter(t => t.is_completed).length || 0;
 
-    // Fetch weekly study hours
     const weekData: { day: string; hours: number }[] = [];
     for (let i = 6; i >= 0; i--) {
       const date = subDays(new Date(), i);
       const dateStr = format(date, 'yyyy-MM-dd');
-      
       const { data: sessions } = await supabase
         .from('study_sessions')
         .select('duration_minutes')
@@ -151,49 +212,34 @@ const ProgressPage: React.FC = () => {
         .eq('session_date', dateStr);
 
       const totalMinutes = sessions?.reduce((acc, s) => acc + s.duration_minutes, 0) || 0;
-      
       weekData.push({
         day: format(date, 'EEE'),
         hours: Math.round(totalMinutes / 60 * 10) / 10,
       });
     }
-
     setWeeklyData(weekData);
 
-    // Fetch all study sessions grouped by date for daily log
+    // Fetch all sessions individually for edit/delete
     const { data: allSessions } = await supabase
       .from('study_sessions')
-      .select('session_date, duration_minutes')
+      .select('id, session_date, duration_minutes, subject_id')
       .eq('user_id', user.id)
       .order('session_date', { ascending: false });
 
-    const dateMap: Record<string, number> = {};
-    allSessions?.forEach(s => {
-      const d = s.session_date || '';
-      dateMap[d] = (dateMap[d] || 0) + s.duration_minutes;
-    });
-
-    const records: DailyStudyRecord[] = Object.entries(dateMap)
-      .filter(([_, mins]) => mins > 0)
-      .map(([date, mins]) => ({
-        date,
-        displayDate: format(new Date(date), 'dd MMM yyyy, EEEE'),
-        hours: Math.round((mins / 60) * 10) / 10,
-      }))
-      .sort((a, b) => b.date.localeCompare(a.date));
+    const records: DailyStudyRecord[] = (allSessions || []).map(s => ({
+      id: s.id,
+      date: s.session_date || '',
+      displayDate: s.session_date ? format(new Date(s.session_date), 'dd MMM yyyy, EEEE') : 'Unknown',
+      hours: Math.round((s.duration_minutes / 60) * 10) / 10,
+      subjectName: s.subject_id ? (subjectMap[s.subject_id] || 'Unknown') : null,
+      subjectId: s.subject_id,
+      durationMinutes: s.duration_minutes,
+    }));
 
     setDailyRecords(records);
 
     const totalHours = weekData.reduce((acc, d) => acc + d.hours, 0);
-
-    setTotalStats({
-      totalTopics,
-      completedTopics,
-      totalTasks,
-      completedTasks,
-      totalHours,
-    });
-
+    setTotalStats({ totalTopics, completedTopics, totalTasks, completedTasks, totalHours });
     setLoading(false);
   };
 
@@ -203,17 +249,13 @@ const ProgressPage: React.FC = () => {
   ];
 
   const overallProgress = totalStats.totalTopics > 0 
-    ? (totalStats.completedTopics / totalStats.totalTopics) * 100 
-    : 0;
-
+    ? (totalStats.completedTopics / totalStats.totalTopics) * 100 : 0;
   const taskProgress = totalStats.totalTasks > 0 
-    ? (totalStats.completedTasks / totalStats.totalTasks) * 100 
-    : 0;
+    ? (totalStats.completedTasks / totalStats.totalTasks) * 100 : 0;
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        {/* Header */}
         <div>
           <h1 className="text-3xl font-bold">Progress</h1>
           <p className="text-muted-foreground">Track your study progress and analytics</p>
@@ -232,13 +274,10 @@ const ProgressPage: React.FC = () => {
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Topics</p>
-                    <p className="text-2xl font-bold">
-                      {totalStats.completedTopics}/{totalStats.totalTopics}
-                    </p>
+                    <p className="text-2xl font-bold">{totalStats.completedTopics}/{totalStats.totalTopics}</p>
                   </div>
                 </div>
               </GlassCard>
-
               <GlassCard>
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
@@ -246,13 +285,10 @@ const ProgressPage: React.FC = () => {
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Tasks Done</p>
-                    <p className="text-2xl font-bold">
-                      {totalStats.completedTasks}/{totalStats.totalTasks}
-                    </p>
+                    <p className="text-2xl font-bold">{totalStats.completedTasks}/{totalStats.totalTasks}</p>
                   </div>
                 </div>
               </GlassCard>
-
               <GlassCard>
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center">
@@ -264,7 +300,6 @@ const ProgressPage: React.FC = () => {
                   </div>
                 </div>
               </GlassCard>
-
               <GlassCard>
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
@@ -280,7 +315,6 @@ const ProgressPage: React.FC = () => {
 
             {/* Charts */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Weekly Study Hours */}
               <GlassCard>
                 <h3 className="font-semibold mb-4 flex items-center gap-2">
                   <TrendingUp className="w-5 h-5 text-primary" />
@@ -292,18 +326,8 @@ const ProgressPage: React.FC = () => {
                       <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                       <XAxis dataKey="day" className="text-xs" />
                       <YAxis className="text-xs" />
-                      <Tooltip 
-                        contentStyle={{ 
-                          backgroundColor: 'hsl(var(--card))', 
-                          border: '1px solid hsl(var(--border))',
-                          borderRadius: '8px',
-                        }}
-                      />
-                      <Bar 
-                        dataKey="hours" 
-                        fill="url(#colorGradient)" 
-                        radius={[4, 4, 0, 0]}
-                      />
+                      <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px' }} />
+                      <Bar dataKey="hours" fill="url(#colorGradient)" radius={[4, 4, 0, 0]} />
                       <defs>
                         <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="0%" stopColor="hsl(var(--primary))" />
@@ -315,21 +339,12 @@ const ProgressPage: React.FC = () => {
                 </div>
               </GlassCard>
 
-              {/* Overall Completion */}
               <GlassCard>
                 <h3 className="font-semibold mb-4">Overall Completion</h3>
-                <div className="h-64 flex items-center justify-center">
+                <div className="h-64 flex items-center justify-center relative">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
-                      <Pie
-                        data={pieData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={80}
-                        paddingAngle={5}
-                        dataKey="value"
-                      >
+                      <Pie data={pieData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
                         {pieData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
@@ -351,7 +366,7 @@ const ProgressPage: React.FC = () => {
                 <Plus className="w-5 h-5 text-primary" />
                 Log Study Hours
               </h3>
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
                 <Input
                   type="date"
                   value={logDate}
@@ -367,6 +382,17 @@ const ProgressPage: React.FC = () => {
                   onChange={(e) => setLogHours(e.target.value)}
                   className="sm:w-44"
                 />
+                <Select value={logSubject} onValueChange={setLogSubject}>
+                  <SelectTrigger className="sm:w-48">
+                    <SelectValue placeholder="Select subject" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No subject</SelectItem>
+                    {subjects.map(s => (
+                      <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <GradientButton onClick={handleLogStudyHours} disabled={logging}>
                   {logging ? 'Logging...' : 'Log Hours'}
                 </GradientButton>
@@ -399,14 +425,69 @@ const ProgressPage: React.FC = () => {
                     className="overflow-hidden"
                   >
                     {dailyRecords.length > 0 ? (
-                      <div className="mt-4 space-y-2 max-h-80 overflow-y-auto">
+                      <div className="mt-4 space-y-2 max-h-96 overflow-y-auto">
                         {dailyRecords.map((record) => (
                           <div
-                            key={record.date}
-                            className="flex items-center justify-between p-3 rounded-xl bg-muted/50 border border-border/50"
+                            key={record.id}
+                            className="flex items-center justify-between p-3 rounded-xl bg-muted/50 border border-border/50 gap-2"
                           >
-                            <span className="text-sm text-foreground">{record.displayDate}</span>
-                            <span className="text-sm font-semibold text-primary">{record.hours}h</span>
+                            {editingId === record.id ? (
+                              <div className="flex flex-col sm:flex-row gap-2 flex-1">
+                                <Input
+                                  type="date"
+                                  value={editDate}
+                                  onChange={(e) => setEditDate(e.target.value)}
+                                  className="sm:w-40 h-8 text-sm"
+                                />
+                                <Input
+                                  type="number"
+                                  min="0.1"
+                                  step="0.1"
+                                  value={editHours}
+                                  onChange={(e) => setEditHours(e.target.value)}
+                                  className="sm:w-24 h-8 text-sm"
+                                />
+                                <Select value={editSubject} onValueChange={setEditSubject}>
+                                  <SelectTrigger className="sm:w-36 h-8 text-sm">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="none">No subject</SelectItem>
+                                    {subjects.map(s => (
+                                      <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <div className="flex gap-1">
+                                  <button onClick={handleSaveEdit} className="p-1 rounded-lg hover:bg-primary/20 text-green-500">
+                                    <Check className="w-4 h-4" />
+                                  </button>
+                                  <button onClick={() => setEditingId(null)} className="p-1 rounded-lg hover:bg-destructive/20 text-muted-foreground">
+                                    <X className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <>
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-1 flex-1 min-w-0">
+                                  <span className="text-sm text-foreground">{record.displayDate}</span>
+                                  {record.subjectName && (
+                                    <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary w-fit">
+                                      {record.subjectName}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-2 shrink-0">
+                                  <span className="text-sm font-semibold text-primary">{record.hours}h</span>
+                                  <button onClick={() => handleStartEdit(record)} className="p-1 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground">
+                                    <Pencil className="w-3.5 h-3.5" />
+                                  </button>
+                                  <button onClick={() => handleDeleteSession(record.id)} className="p-1 rounded-lg hover:bg-destructive/20 text-muted-foreground hover:text-destructive">
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              </>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -436,10 +517,7 @@ const ProgressPage: React.FC = () => {
                       >
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2">
-                            <div 
-                              className="w-3 h-3 rounded-full" 
-                              style={{ backgroundColor: subject.color }}
-                            />
+                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: subject.color }} />
                             <span className="font-medium">{subject.name}</span>
                           </div>
                           <span className="text-sm text-muted-foreground">
