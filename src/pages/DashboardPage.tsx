@@ -19,7 +19,7 @@ import { supabase } from '@/lib/supabase';
 import { format } from 'date-fns';
 import { Progress } from '@/components/ui/progress';
 import { useNavigate } from 'react-router-dom';
-import { StressBurstMode } from '@/components/StressBurstMode';
+
 import { DailyReminders } from '@/components/DailyReminders';
 import { MotivationalCard } from '@/components/dashboard/MotivationalCard';
 
