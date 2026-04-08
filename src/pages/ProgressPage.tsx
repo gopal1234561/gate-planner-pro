@@ -64,6 +64,7 @@ const ProgressPage: React.FC = () => {
   const { user } = useAuth();
   const [subjectProgress, setSubjectProgress] = useState<SubjectProgress[]>([]);
   const [weeklyData, setWeeklyData] = useState<{ day: string; hours: number }[]>([]);
+  const [monthlyData, setMonthlyData] = useState<{ day: string; hours: number }[]>([]);
   const [dailyRecords, setDailyRecords] = useState<DailyStudyRecord[]>([]);
   const [showDailyLog, setShowDailyLog] = useState(false);
   const [subjects, setSubjects] = useState<SubjectOption[]>([]);
