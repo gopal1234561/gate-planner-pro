@@ -381,6 +381,31 @@ const ProgressPage: React.FC = () => {
               </GlassCard>
             </div>
 
+            {/* Monthly Chart */}
+            <GlassCard>
+              <h3 className="font-semibold mb-4 flex items-center gap-2">
+                <CalendarDays className="w-5 h-5 text-primary" />
+                Monthly Study Hours (Last 30 Days)
+              </h3>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={monthlyData}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="day" className="text-xs" interval={4} angle={-45} textAnchor="end" height={50} />
+                    <YAxis className="text-xs" />
+                    <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px' }} />
+                    <Bar dataKey="hours" fill="url(#monthGradient)" radius={[2, 2, 0, 0]} />
+                    <defs>
+                      <linearGradient id="monthGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="hsl(142, 76%, 36%)" />
+                        <stop offset="100%" stopColor="hsl(var(--primary))" />
+                      </linearGradient>
+                    </defs>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </GlassCard>
+
             {/* Log Study Hours */}
             <GlassCard>
               <h3 className="font-semibold mb-4 flex items-center gap-2">
