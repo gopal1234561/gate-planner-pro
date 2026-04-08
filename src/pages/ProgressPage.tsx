@@ -64,6 +64,7 @@ const ProgressPage: React.FC = () => {
   const { user } = useAuth();
   const [subjectProgress, setSubjectProgress] = useState<SubjectProgress[]>([]);
   const [weeklyData, setWeeklyData] = useState<{ day: string; hours: number }[]>([]);
+  const [monthlyData, setMonthlyData] = useState<{ day: string; hours: number }[]>([]);
   const [dailyRecords, setDailyRecords] = useState<DailyStudyRecord[]>([]);
   const [showDailyLog, setShowDailyLog] = useState(false);
   const [subjects, setSubjects] = useState<SubjectOption[]>([]);
@@ -201,6 +202,7 @@ const ProgressPage: React.FC = () => {
     const totalTasks = allTasks?.length || 0;
     const completedTasks = allTasks?.filter(t => t.is_completed).length || 0;
 
+    // Weekly data
     const weekData: { day: string; hours: number }[] = [];
     for (let i = 6; i >= 0; i--) {
       const date = subDays(new Date(), i);
@@ -218,6 +220,25 @@ const ProgressPage: React.FC = () => {
       });
     }
     setWeeklyData(weekData);
+
+    // Monthly data (last 30 days)
+    const monthData: { day: string; hours: number }[] = [];
+    for (let i = 29; i >= 0; i--) {
+      const date = subDays(new Date(), i);
+      const dateStr = format(date, 'yyyy-MM-dd');
+      const { data: sessions } = await supabase
+        .from('study_sessions')
+        .select('duration_minutes')
+        .eq('user_id', user.id)
+        .eq('session_date', dateStr);
+
+      const totalMinutes = sessions?.reduce((acc, s) => acc + s.duration_minutes, 0) || 0;
+      monthData.push({
+        day: format(date, 'd MMM'),
+        hours: Math.round(totalMinutes / 60 * 10) / 10,
+      });
+    }
+    setMonthlyData(monthData);
 
     // Fetch all sessions individually for edit/delete
     const { data: allSessions } = await supabase
@@ -359,6 +380,31 @@ const ProgressPage: React.FC = () => {
                 </div>
               </GlassCard>
             </div>
+
+            {/* Monthly Chart */}
+            <GlassCard>
+              <h3 className="font-semibold mb-4 flex items-center gap-2">
+                <CalendarDays className="w-5 h-5 text-primary" />
+                Monthly Study Hours (Last 30 Days)
+              </h3>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={monthlyData}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="day" className="text-xs" interval={4} angle={-45} textAnchor="end" height={50} />
+                    <YAxis className="text-xs" />
+                    <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px' }} />
+                    <Bar dataKey="hours" fill="url(#monthGradient)" radius={[2, 2, 0, 0]} />
+                    <defs>
+                      <linearGradient id="monthGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="hsl(142, 76%, 36%)" />
+                        <stop offset="100%" stopColor="hsl(var(--primary))" />
+                      </linearGradient>
+                    </defs>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </GlassCard>
 
             {/* Log Study Hours */}
             <GlassCard>
