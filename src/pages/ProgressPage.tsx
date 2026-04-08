@@ -474,69 +474,90 @@ const ProgressPage: React.FC = () => {
                     className="overflow-hidden"
                   >
                     {dailyRecords.length > 0 ? (
-                      <div className="mt-4 space-y-2 max-h-96 overflow-y-auto">
-                        {dailyRecords.map((record) => (
-                          <div
-                            key={record.id}
-                            className="flex items-center justify-between p-3 rounded-xl bg-muted/50 border border-border/50 gap-2"
-                          >
-                            {editingId === record.id ? (
-                              <div className="flex flex-col sm:flex-row gap-2 flex-1">
-                                <Input
-                                  type="date"
-                                  value={editDate}
-                                  onChange={(e) => setEditDate(e.target.value)}
-                                  className="sm:w-40 h-8 text-sm"
-                                />
-                                <Input
-                                  type="number"
-                                  min="0.1"
-                                  step="0.1"
-                                  value={editHours}
-                                  onChange={(e) => setEditHours(e.target.value)}
-                                  className="sm:w-24 h-8 text-sm"
-                                />
-                                <Select value={editSubject} onValueChange={setEditSubject}>
-                                  <SelectTrigger className="sm:w-36 h-8 text-sm">
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="none">No subject</SelectItem>
-                                    {subjects.map(s => (
-                                      <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                <div className="flex gap-1">
-                                  <button onClick={handleSaveEdit} className="p-1 rounded-lg hover:bg-primary/20 text-green-500">
-                                    <Check className="w-4 h-4" />
-                                  </button>
-                                  <button onClick={() => setEditingId(null)} className="p-1 rounded-lg hover:bg-destructive/20 text-muted-foreground">
-                                    <X className="w-4 h-4" />
-                                  </button>
-                                </div>
-                              </div>
-                            ) : (
-                              <>
-                                <div className="flex flex-col sm:flex-row sm:items-center gap-1 flex-1 min-w-0">
-                                  <span className="text-sm text-foreground">{record.displayDate}</span>
-                                  {record.subjectName && (
-                                    <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary w-fit">
-                                      {record.subjectName}
-                                    </span>
+                      <div className="mt-4 space-y-3 max-h-96 overflow-y-auto">
+                        {Object.entries(
+                          dailyRecords.reduce<Record<string, { displayDate: string; totalHours: number; sessions: DailyStudyRecord[] }>>((acc, record) => {
+                            if (!acc[record.date]) {
+                              acc[record.date] = { displayDate: record.displayDate, totalHours: 0, sessions: [] };
+                            }
+                            acc[record.date].totalHours += record.hours;
+                            acc[record.date].sessions.push(record);
+                            return acc;
+                          }, {})
+                        ).map(([date, group]) => (
+                          <div key={date} className="rounded-xl bg-muted/50 border border-border/50 overflow-hidden">
+                            <div className="flex items-center justify-between p-3">
+                              <span className="text-sm font-medium text-foreground">{group.displayDate}</span>
+                              <span className="text-sm font-semibold text-primary">{Math.round(group.totalHours * 10) / 10}h total</span>
+                            </div>
+                            <div className="border-t border-border/30">
+                              {group.sessions.map((record) => (
+                                <div
+                                  key={record.id}
+                                  className="flex items-center justify-between px-3 py-2 gap-2"
+                                >
+                                  {editingId === record.id ? (
+                                    <div className="flex flex-col sm:flex-row gap-2 flex-1">
+                                      <Input
+                                        type="date"
+                                        value={editDate}
+                                        onChange={(e) => setEditDate(e.target.value)}
+                                        className="sm:w-40 h-8 text-sm"
+                                      />
+                                      <Input
+                                        type="number"
+                                        min="0.1"
+                                        step="0.1"
+                                        value={editHours}
+                                        onChange={(e) => setEditHours(e.target.value)}
+                                        className="sm:w-24 h-8 text-sm"
+                                      />
+                                      <Select value={editSubject} onValueChange={setEditSubject}>
+                                        <SelectTrigger className="sm:w-36 h-8 text-sm">
+                                          <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="none">No subject</SelectItem>
+                                          {subjects.map(s => (
+                                            <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                                          ))}
+                                        </SelectContent>
+                                      </Select>
+                                      <div className="flex gap-1">
+                                        <button onClick={handleSaveEdit} className="p-1 rounded-lg hover:bg-primary/20 text-green-500">
+                                          <Check className="w-4 h-4" />
+                                        </button>
+                                        <button onClick={() => setEditingId(null)} className="p-1 rounded-lg hover:bg-destructive/20 text-muted-foreground">
+                                          <X className="w-4 h-4" />
+                                        </button>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <>
+                                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                                        {record.subjectName && (
+                                          <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary w-fit">
+                                            {record.subjectName}
+                                          </span>
+                                        )}
+                                        {!record.subjectName && (
+                                          <span className="text-xs text-muted-foreground">General</span>
+                                        )}
+                                      </div>
+                                      <div className="flex items-center gap-2 shrink-0">
+                                        <span className="text-sm font-semibold text-primary">{record.hours}h</span>
+                                        <button onClick={() => handleStartEdit(record)} className="p-1 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground">
+                                          <Pencil className="w-3.5 h-3.5" />
+                                        </button>
+                                        <button onClick={() => handleDeleteSession(record.id)} className="p-1 rounded-lg hover:bg-destructive/20 text-muted-foreground hover:text-destructive">
+                                          <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
+                                      </div>
+                                    </>
                                   )}
                                 </div>
-                                <div className="flex items-center gap-2 shrink-0">
-                                  <span className="text-sm font-semibold text-primary">{record.hours}h</span>
-                                  <button onClick={() => handleStartEdit(record)} className="p-1 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground">
-                                    <Pencil className="w-3.5 h-3.5" />
-                                  </button>
-                                  <button onClick={() => handleDeleteSession(record.id)} className="p-1 rounded-lg hover:bg-destructive/20 text-muted-foreground hover:text-destructive">
-                                    <Trash2 className="w-3.5 h-3.5" />
-                                  </button>
-                                </div>
-                              </>
-                            )}
+                              ))}
+                            </div>
                           </div>
                         ))}
                       </div>
