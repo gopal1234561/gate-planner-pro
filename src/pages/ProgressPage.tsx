@@ -202,6 +202,7 @@ const ProgressPage: React.FC = () => {
     const totalTasks = allTasks?.length || 0;
     const completedTasks = allTasks?.filter(t => t.is_completed).length || 0;
 
+    // Weekly data
     const weekData: { day: string; hours: number }[] = [];
     for (let i = 6; i >= 0; i--) {
       const date = subDays(new Date(), i);
@@ -219,6 +220,25 @@ const ProgressPage: React.FC = () => {
       });
     }
     setWeeklyData(weekData);
+
+    // Monthly data (last 30 days)
+    const monthData: { day: string; hours: number }[] = [];
+    for (let i = 29; i >= 0; i--) {
+      const date = subDays(new Date(), i);
+      const dateStr = format(date, 'yyyy-MM-dd');
+      const { data: sessions } = await supabase
+        .from('study_sessions')
+        .select('duration_minutes')
+        .eq('user_id', user.id)
+        .eq('session_date', dateStr);
+
+      const totalMinutes = sessions?.reduce((acc, s) => acc + s.duration_minutes, 0) || 0;
+      monthData.push({
+        day: format(date, 'd MMM'),
+        hours: Math.round(totalMinutes / 60 * 10) / 10,
+      });
+    }
+    setMonthlyData(monthData);
 
     // Fetch all sessions individually for edit/delete
     const { data: allSessions } = await supabase
