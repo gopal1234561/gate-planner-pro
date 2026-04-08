@@ -221,24 +221,27 @@ const ProgressPage: React.FC = () => {
     }
     setWeeklyData(weekData);
 
-    // Monthly data (last 30 days)
-    const monthData: { day: string; hours: number }[] = [];
-    for (let i = 29; i >= 0; i--) {
-      const date = subDays(new Date(), i);
-      const dateStr = format(date, 'yyyy-MM-dd');
-      const { data: sessions } = await supabase
-        .from('study_sessions')
-        .select('duration_minutes')
-        .eq('user_id', user.id)
-        .eq('session_date', dateStr);
+    // Monthly data (all 12 months of current year)
+    const currentYear = new Date().getFullYear();
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const { data: yearSessions } = await supabase
+      .from('study_sessions')
+      .select('duration_minutes, session_date')
+      .eq('user_id', user.id)
+      .gte('session_date', `${currentYear}-01-01`)
+      .lte('session_date', `${currentYear}-12-31`);
 
-      const totalMinutes = sessions?.reduce((acc, s) => acc + s.duration_minutes, 0) || 0;
-      monthData.push({
-        day: format(date, 'd MMM'),
-        hours: Math.round(totalMinutes / 60 * 10) / 10,
-      });
-    }
-    setMonthlyData(monthData);
+    const monthTotals: number[] = new Array(12).fill(0);
+    (yearSessions || []).forEach(s => {
+      if (s.session_date) {
+        const month = new Date(s.session_date).getMonth();
+        monthTotals[month] += s.duration_minutes;
+      }
+    });
+    setMonthlyData(monthNames.map((name, i) => ({
+      day: name,
+      hours: Math.round(monthTotals[i] / 60 * 10) / 10,
+    })));
 
     // Fetch all sessions individually for edit/delete
     const { data: allSessions } = await supabase
@@ -385,13 +388,13 @@ const ProgressPage: React.FC = () => {
             <GlassCard>
               <h3 className="font-semibold mb-4 flex items-center gap-2">
                 <CalendarDays className="w-5 h-5 text-primary" />
-                Monthly Study Hours (Last 30 Days)
+                Monthly Study Hours ({new Date().getFullYear()})
               </h3>
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={monthlyData}>
                     <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis dataKey="day" className="text-xs" interval={4} angle={-45} textAnchor="end" height={50} />
+                    <XAxis dataKey="day" className="text-xs" />
                     <YAxis className="text-xs" />
                     <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px' }} />
                     <Bar dataKey="hours" fill="url(#monthGradient)" radius={[2, 2, 0, 0]} />
