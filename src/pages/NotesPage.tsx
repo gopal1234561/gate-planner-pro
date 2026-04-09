@@ -28,6 +28,8 @@ interface Subject {
   color: string;
 }
 
+const NOTES_PER_PAGE = 6;
+
 const NotesPage: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -42,6 +44,7 @@ const NotesPage: React.FC = () => {
   const [newContent, setNewContent] = useState('');
   const [newSubjectId, setNewSubjectId] = useState<string>('none');
   const [filterSubject, setFilterSubject] = useState('all');
+  const [visibleCount, setVisibleCount] = useState(NOTES_PER_PAGE);
 
   useEffect(() => {
     if (user) fetchData();
@@ -95,6 +98,11 @@ const NotesPage: React.FC = () => {
   const getSubjectColor = (id: string | null) => subjects.find(s => s.id === id)?.color || '#8B5CF6';
 
   const filtered = filterSubject === 'all' ? notes : notes.filter(n => n.subject_id === filterSubject);
+  const visibleNotes = filtered.slice(0, visibleCount);
+  const hasMore = visibleCount < filtered.length;
+
+  // Reset visible count when filter changes
+  useEffect(() => { setVisibleCount(NOTES_PER_PAGE); }, [filterSubject]);
 
   return (
     <DashboardLayout>
@@ -154,7 +162,7 @@ const NotesPage: React.FC = () => {
         {/* Notes Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <AnimatePresence>
-            {filtered.map((note, i) => (
+            {visibleNotes.map((note, i) => (
               <motion.div key={note.id} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.05 }}>
                 <GlassCard className="h-full">
                   {editingId === note.id ? (
@@ -194,6 +202,14 @@ const NotesPage: React.FC = () => {
             ))}
           </AnimatePresence>
         </div>
+
+        {hasMore && (
+          <div className="flex justify-center">
+            <Button variant="outline" onClick={() => setVisibleCount(prev => prev + NOTES_PER_PAGE)}>
+              View More ({filtered.length - visibleCount} remaining)
+            </Button>
+          </div>
+        )}
 
         {filtered.length === 0 && !loading && !showAdd && (
           <GlassCard>
