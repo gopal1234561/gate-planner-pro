@@ -98,6 +98,11 @@ const NotesPage: React.FC = () => {
   const getSubjectColor = (id: string | null) => subjects.find(s => s.id === id)?.color || '#8B5CF6';
 
   const filtered = filterSubject === 'all' ? notes : notes.filter(n => n.subject_id === filterSubject);
+  const visibleNotes = filtered.slice(0, visibleCount);
+  const hasMore = visibleCount < filtered.length;
+
+  // Reset visible count when filter changes
+  useEffect(() => { setVisibleCount(NOTES_PER_PAGE); }, [filterSubject]);
 
   return (
     <DashboardLayout>
