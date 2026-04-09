@@ -35,6 +35,8 @@ interface Subject {
   color: string;
 }
 
+const FORMULAS_PER_PAGE = 6;
+
 const FormulaSheetsPage: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -48,6 +50,7 @@ const FormulaSheetsPage: React.FC = () => {
   const [editingSheet, setEditingSheet] = useState<FormulaSheet | null>(null);
   const [expandedSheet, setExpandedSheet] = useState<string | null>(null);
   const [quizMode, setQuizMode] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(FORMULAS_PER_PAGE);
 
   // Form state
   const [formTitle, setFormTitle] = useState('');
@@ -144,6 +147,11 @@ const FormulaSheetsPage: React.FC = () => {
     if (search && !s.title.toLowerCase().includes(search.toLowerCase()) && !s.content.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
+  const visibleFormulas = filtered.slice(0, visibleCount);
+  const hasMore = visibleCount < filtered.length;
+
+  // Reset visible count when filters change
+  useEffect(() => { setVisibleCount(FORMULAS_PER_PAGE); }, [filterSubject, search, showFavoritesOnly]);
 
   const categories = ['general', 'algebra', 'calculus', 'probability', 'data-structures', 'networks', 'os', 'digital-logic', 'other'];
 
@@ -241,69 +249,62 @@ const FormulaSheetsPage: React.FC = () => {
             </div>
           </GlassCard>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filtered.map((sheet, idx) => (
-              <motion.div key={sheet.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}>
-                <GlassCard className={cn("h-full flex flex-col relative overflow-hidden", getCategoryGradient(sheet.category))}>
-                  {/* Decorative gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-background/50 via-background/30 to-transparent pointer-events-none" />
-                  
-                  <div className="relative flex items-start justify-between mb-3">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-lg truncate bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">{sheet.title}</h3>
-                      <div className="flex items-center gap-2 mt-1 flex-wrap">
-                        <Badge 
-                          variant="outline" 
-                          className="border-primary/30 text-primary font-medium"
-                          style={{ borderColor: getSubjectColor(sheet.subject_id), color: getSubjectColor(sheet.subject_id) }}
-                        >
-                          {getSubjectName(sheet.subject_id)}
-                        </Badge>
-                        <Badge 
-                          variant="secondary" 
-                          className="text-xs bg-secondary/60 backdrop-blur-sm"
-                        >
-                          <span className="flex items-center gap-1">
-                            {getCategoryIcon(sheet.category)}
-                            {sheet.category.charAt(0).toUpperCase() + sheet.category.slice(1).replace('-', ' ')}
-                          </span>
-                        </Badge>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {visibleFormulas.map((sheet, idx) => (
+                <motion.div key={sheet.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}>
+                  <GlassCard className={cn("h-full flex flex-col relative overflow-hidden", getCategoryGradient(sheet.category))}>
+                    <div className="absolute inset-0 bg-gradient-to-br from-background/50 via-background/30 to-transparent pointer-events-none" />
+                    <div className="relative flex items-start justify-between mb-3">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-lg truncate bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">{sheet.title}</h3>
+                        <div className="flex items-center gap-2 mt-1 flex-wrap">
+                          <Badge variant="outline" className="border-primary/30 text-primary font-medium" style={{ borderColor: getSubjectColor(sheet.subject_id), color: getSubjectColor(sheet.subject_id) }}>
+                            {getSubjectName(sheet.subject_id)}
+                          </Badge>
+                          <Badge variant="secondary" className="text-xs bg-secondary/60 backdrop-blur-sm">
+                            <span className="flex items-center gap-1">
+                              {getCategoryIcon(sheet.category)}
+                              {sheet.category.charAt(0).toUpperCase() + sheet.category.slice(1).replace('-', ' ')}
+                            </span>
+                          </Badge>
+                        </div>
                       </div>
+                      <button onClick={() => toggleFavorite(sheet)} className="text-amber-500 hover:scale-110 transition-transform ml-2 p-1 rounded-full hover:bg-amber-500/10">
+                        {sheet.is_favorite ? <Star className="w-5 h-5 fill-amber-500" /> : <StarOff className="w-5 h-5 text-muted-foreground" />}
+                      </button>
                     </div>
-                    <button 
-                      onClick={() => toggleFavorite(sheet)} 
-                      className="text-amber-500 hover:scale-110 transition-transform ml-2 p-1 rounded-full hover:bg-amber-500/10"
-                    >
-                      {sheet.is_favorite ? <Star className="w-5 h-5 fill-amber-500" /> : <StarOff className="w-5 h-5 text-muted-foreground" />}
-                    </button>
-                  </div>
-
-                  <div
-                    className={cn(
-                      "flex-1 text-sm text-muted-foreground whitespace-pre-wrap font-mono bg-background/60 backdrop-blur-sm rounded-lg p-3 cursor-pointer transition-all border border-border/50 hover:border-primary/30 prose prose-sm dark:prose-invert max-w-none",
-                      expandedSheet === sheet.id ? '' : 'max-h-32 overflow-hidden'
+                    <div
+                      className={cn(
+                        "flex-1 text-sm text-muted-foreground whitespace-pre-wrap font-mono bg-background/60 backdrop-blur-sm rounded-lg p-3 cursor-pointer transition-all border border-border/50 hover:border-primary/30 prose prose-sm dark:prose-invert max-w-none",
+                        expandedSheet === sheet.id ? '' : 'max-h-32 overflow-hidden'
+                      )}
+                      onClick={() => setExpandedSheet(expandedSheet === sheet.id ? null : sheet.id)}
+                      dangerouslySetInnerHTML={{ __html: sheet.content }}
+                    />
+                    {expandedSheet !== sheet.id && sheet.content.length > 200 && (
+                      <p className="text-xs text-primary mt-1 cursor-pointer hover:underline" onClick={() => setExpandedSheet(sheet.id)}>Click to expand...</p>
                     )}
-                    onClick={() => setExpandedSheet(expandedSheet === sheet.id ? null : sheet.id)}
-                    dangerouslySetInnerHTML={{ __html: sheet.content }}
-                  />
-                  {expandedSheet !== sheet.id && sheet.content.length > 200 && (
-                    <p className="text-xs text-primary mt-1 cursor-pointer hover:underline" onClick={() => setExpandedSheet(sheet.id)}>
-                      Click to expand...
-                    </p>
-                  )}
-
-                  <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border/60 relative">
-                    <Button variant="ghost" size="sm" className="hover:bg-primary/10 hover:text-primary transition-colors">
-                      <Edit3 className="w-4 h-4 mr-1" /> Edit
-                    </Button>
-                    <Button variant="ghost" size="sm" className="text-destructive/80 hover:text-destructive hover:bg-destructive/10 transition-colors" onClick={() => deleteSheet(sheet.id)}>
-                      <Trash2 className="w-4 h-4 mr-1" /> Delete
-                    </Button>
-                  </div>
-                </GlassCard>
-              </motion.div>
-            ))}
-          </div>
+                    <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border/60 relative">
+                      <Button variant="ghost" size="sm" className="hover:bg-primary/10 hover:text-primary transition-colors" onClick={() => openEditDialog(sheet)}>
+                        <Edit3 className="w-4 h-4 mr-1" /> Edit
+                      </Button>
+                      <Button variant="ghost" size="sm" className="text-destructive/80 hover:text-destructive hover:bg-destructive/10 transition-colors" onClick={() => deleteSheet(sheet.id)}>
+                        <Trash2 className="w-4 h-4 mr-1" /> Delete
+                      </Button>
+                    </div>
+                  </GlassCard>
+                </motion.div>
+              ))}
+            </div>
+            {hasMore && (
+              <div className="flex justify-center mt-4">
+                <Button variant="outline" onClick={() => setVisibleCount(prev => prev + FORMULAS_PER_PAGE)}>
+                  View More ({filtered.length - visibleCount} remaining)
+                </Button>
+              </div>
+            )}
+          </>
         )}
         </>
         )}
