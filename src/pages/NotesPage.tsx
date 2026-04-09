@@ -162,7 +162,7 @@ const NotesPage: React.FC = () => {
         {/* Notes Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <AnimatePresence>
-            {filtered.map((note, i) => (
+            {visibleNotes.map((note, i) => (
               <motion.div key={note.id} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.05 }}>
                 <GlassCard className="h-full">
                   {editingId === note.id ? (
@@ -202,6 +202,14 @@ const NotesPage: React.FC = () => {
             ))}
           </AnimatePresence>
         </div>
+
+        {hasMore && (
+          <div className="flex justify-center">
+            <Button variant="outline" onClick={() => setVisibleCount(prev => prev + NOTES_PER_PAGE)}>
+              View More ({filtered.length - visibleCount} remaining)
+            </Button>
+          </div>
+        )}
 
         {filtered.length === 0 && !loading && !showAdd && (
           <GlassCard>
