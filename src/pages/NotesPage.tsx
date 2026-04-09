@@ -28,6 +28,8 @@ interface Subject {
   color: string;
 }
 
+const NOTES_PER_PAGE = 6;
+
 const NotesPage: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -42,6 +44,7 @@ const NotesPage: React.FC = () => {
   const [newContent, setNewContent] = useState('');
   const [newSubjectId, setNewSubjectId] = useState<string>('none');
   const [filterSubject, setFilterSubject] = useState('all');
+  const [visibleCount, setVisibleCount] = useState(NOTES_PER_PAGE);
 
   useEffect(() => {
     if (user) fetchData();
