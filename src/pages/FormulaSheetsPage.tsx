@@ -35,6 +35,8 @@ interface Subject {
   color: string;
 }
 
+const FORMULAS_PER_PAGE = 6;
+
 const FormulaSheetsPage: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -48,6 +50,7 @@ const FormulaSheetsPage: React.FC = () => {
   const [editingSheet, setEditingSheet] = useState<FormulaSheet | null>(null);
   const [expandedSheet, setExpandedSheet] = useState<string | null>(null);
   const [quizMode, setQuizMode] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(FORMULAS_PER_PAGE);
 
   // Form state
   const [formTitle, setFormTitle] = useState('');
@@ -144,6 +147,11 @@ const FormulaSheetsPage: React.FC = () => {
     if (search && !s.title.toLowerCase().includes(search.toLowerCase()) && !s.content.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
+  const visibleFormulas = filtered.slice(0, visibleCount);
+  const hasMore = visibleCount < filtered.length;
+
+  // Reset visible count when filters change
+  useEffect(() => { setVisibleCount(FORMULAS_PER_PAGE); }, [filterSubject, search, showFavoritesOnly]);
 
   const categories = ['general', 'algebra', 'calculus', 'probability', 'data-structures', 'networks', 'os', 'digital-logic', 'other'];
 
@@ -242,7 +250,7 @@ const FormulaSheetsPage: React.FC = () => {
           </GlassCard>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filtered.map((sheet, idx) => (
+            {visibleFormulas.map((sheet, idx) => (
               <motion.div key={sheet.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}>
                 <GlassCard className={cn("h-full flex flex-col relative overflow-hidden", getCategoryGradient(sheet.category))}>
                   {/* Decorative gradient overlay */}
@@ -293,7 +301,7 @@ const FormulaSheetsPage: React.FC = () => {
                   )}
 
                   <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border/60 relative">
-                    <Button variant="ghost" size="sm" className="hover:bg-primary/10 hover:text-primary transition-colors">
+                    <Button variant="ghost" size="sm" className="hover:bg-primary/10 hover:text-primary transition-colors" onClick={() => openEditDialog(sheet)}>
                       <Edit3 className="w-4 h-4 mr-1" /> Edit
                     </Button>
                     <Button variant="ghost" size="sm" className="text-destructive/80 hover:text-destructive hover:bg-destructive/10 transition-colors" onClick={() => deleteSheet(sheet.id)}>
@@ -304,6 +312,13 @@ const FormulaSheetsPage: React.FC = () => {
               </motion.div>
             ))}
           </div>
+          {hasMore && (
+            <div className="flex justify-center">
+              <Button variant="outline" onClick={() => setVisibleCount(prev => prev + FORMULAS_PER_PAGE)}>
+                View More ({filtered.length - visibleCount} remaining)
+              </Button>
+            </div>
+          )}
         )}
         </>
         )}

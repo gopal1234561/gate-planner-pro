@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { StickyNote, Plus, Trash2, Edit2, Save, X, BookOpen } from 'lucide-react';
+import { StickyNote, Plus, Trash2, Edit2, Save, X, BookOpen, Search } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Button } from '@/components/ui/button';
@@ -45,6 +45,7 @@ const NotesPage: React.FC = () => {
   const [newSubjectId, setNewSubjectId] = useState<string>('none');
   const [filterSubject, setFilterSubject] = useState('all');
   const [visibleCount, setVisibleCount] = useState(NOTES_PER_PAGE);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     if (user) fetchData();
@@ -97,12 +98,16 @@ const NotesPage: React.FC = () => {
   const getSubjectName = (id: string | null) => subjects.find(s => s.id === id)?.name || null;
   const getSubjectColor = (id: string | null) => subjects.find(s => s.id === id)?.color || '#8B5CF6';
 
-  const filtered = filterSubject === 'all' ? notes : notes.filter(n => n.subject_id === filterSubject);
+  const filtered = notes.filter(n => {
+    if (filterSubject !== 'all' && n.subject_id !== filterSubject) return false;
+    if (search && !n.title.toLowerCase().includes(search.toLowerCase()) && !(n.content || '').toLowerCase().includes(search.toLowerCase())) return false;
+    return true;
+  });
   const visibleNotes = filtered.slice(0, visibleCount);
   const hasMore = visibleCount < filtered.length;
 
-  // Reset visible count when filter changes
-  useEffect(() => { setVisibleCount(NOTES_PER_PAGE); }, [filterSubject]);
+  // Reset visible count when filter or search changes
+  useEffect(() => { setVisibleCount(NOTES_PER_PAGE); }, [filterSubject, search]);
 
   return (
     <DashboardLayout>
@@ -147,16 +152,22 @@ const NotesPage: React.FC = () => {
           )}
         </AnimatePresence>
 
-        {/* Filter */}
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          <button onClick={() => setFilterSubject('all')} className={`px-3 py-1.5 rounded-lg text-sm transition-all ${filterSubject === 'all' ? 'bg-primary text-primary-foreground' : 'bg-muted/50 text-muted-foreground hover:bg-muted'}`}>
-            All
-          </button>
-          {subjects.map(s => (
-            <button key={s.id} onClick={() => setFilterSubject(s.id)} className={`px-3 py-1.5 rounded-lg text-sm transition-all whitespace-nowrap ${filterSubject === s.id ? 'bg-primary text-primary-foreground' : 'bg-muted/50 text-muted-foreground hover:bg-muted'}`}>
-              {s.name}
+        {/* Search & Filter */}
+        <div className="space-y-3">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input placeholder="Search notes by title or content..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10" />
+          </div>
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            <button onClick={() => setFilterSubject('all')} className={`px-3 py-1.5 rounded-lg text-sm transition-all ${filterSubject === 'all' ? 'bg-primary text-primary-foreground' : 'bg-muted/50 text-muted-foreground hover:bg-muted'}`}>
+              All
             </button>
-          ))}
+            {subjects.map(s => (
+              <button key={s.id} onClick={() => setFilterSubject(s.id)} className={`px-3 py-1.5 rounded-lg text-sm transition-all whitespace-nowrap ${filterSubject === s.id ? 'bg-primary text-primary-foreground' : 'bg-muted/50 text-muted-foreground hover:bg-muted'}`}>
+                {s.name}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Notes Grid */}
