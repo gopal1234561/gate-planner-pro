@@ -55,11 +55,14 @@ interface Subject {
   color: string;
 }
 
+const TASKS_PER_PAGE = 8;
+
 const TasksPage: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [visibleCount, setVisibleCount] = useState(TASKS_PER_PAGE);
   const [loading, setLoading] = useState(true);
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [newTask, setNewTask] = useState({
@@ -168,7 +171,10 @@ const TasksPage: React.FC = () => {
     high: 'bg-destructive/20 text-destructive',
   };
 
-  const groupedTasks = tasks.reduce((acc, task) => {
+  const visibleTasks = tasks.slice(0, visibleCount);
+  const hasMore = visibleCount < tasks.length;
+
+  const groupedTasks = visibleTasks.reduce((acc, task) => {
     const date = task.task_date;
     if (!acc[date]) acc[date] = [];
     acc[date].push(task);
@@ -405,6 +411,17 @@ const TasksPage: React.FC = () => {
                 </div>
               </div>
             ))}
+
+            {hasMore && (
+              <div className="flex justify-center pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setVisibleCount((prev) => prev + TASKS_PER_PAGE)}
+                >
+                  View More ({tasks.length - visibleCount} remaining)
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </div>
