@@ -411,6 +411,17 @@ const TasksPage: React.FC = () => {
                 </div>
               </div>
             ))}
+
+            {hasMore && (
+              <div className="flex justify-center pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setVisibleCount((prev) => prev + TASKS_PER_PAGE)}
+                >
+                  View More ({tasks.length - visibleCount} remaining)
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </div>
