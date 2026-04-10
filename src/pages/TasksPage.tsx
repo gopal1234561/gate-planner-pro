@@ -55,11 +55,14 @@ interface Subject {
   color: string;
 }
 
+const TASKS_PER_PAGE = 8;
+
 const TasksPage: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [visibleCount, setVisibleCount] = useState(TASKS_PER_PAGE);
   const [loading, setLoading] = useState(true);
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [newTask, setNewTask] = useState({
