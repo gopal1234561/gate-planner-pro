@@ -171,7 +171,10 @@ const TasksPage: React.FC = () => {
     high: 'bg-destructive/20 text-destructive',
   };
 
-  const groupedTasks = tasks.reduce((acc, task) => {
+  const visibleTasks = tasks.slice(0, visibleCount);
+  const hasMore = visibleCount < tasks.length;
+
+  const groupedTasks = visibleTasks.reduce((acc, task) => {
     const date = task.task_date;
     if (!acc[date]) acc[date] = [];
     acc[date].push(task);
