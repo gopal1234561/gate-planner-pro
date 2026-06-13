@@ -299,9 +299,7 @@ const AIStudyPlannerPage: React.FC = () => {
               className="mt-4 p-4 rounded-xl bg-muted/50 border border-border"
             >
               <p className="text-xs font-semibold text-primary mb-2">💡 Answer:</p>
-              <div className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
-                {doubtAnswer}
-              </div>
+              <FormattedAnswer text={doubtAnswer} />
             </motion.div>
           )}
         </GlassCard>
