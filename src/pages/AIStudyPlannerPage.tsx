@@ -13,6 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { FormattedAnswer } from '@/components/ai/FormattedAnswer';
 
 interface StudySession {
   subject: string;
@@ -299,9 +300,7 @@ const AIStudyPlannerPage: React.FC = () => {
               className="mt-4 p-4 rounded-xl bg-muted/50 border border-border"
             >
               <p className="text-xs font-semibold text-primary mb-2">💡 Answer:</p>
-              <div className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
-                {doubtAnswer}
-              </div>
+              <FormattedAnswer text={doubtAnswer} />
             </motion.div>
           )}
         </GlassCard>
