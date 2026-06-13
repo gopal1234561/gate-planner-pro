@@ -1,5 +1,5 @@
 import React, { useRef, useCallback, useState, useEffect } from 'react';
-import { Bold, Italic, Underline, Paintbrush, Type, Highlighter, ImagePlus, Loader2 } from 'lucide-react';
+import { Bold, Italic, Underline, Paintbrush, Type, Highlighter, ImagePlus, Loader2, Link as LinkIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
@@ -194,6 +194,41 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
             </div>
           </PopoverContent>
         </Popover>
+
+        {/* Insert Link */}
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="h-7 w-7 p-0"
+          onClick={() => {
+            const url = window.prompt('Enter URL (https://...)');
+            if (!url) return;
+            const href = /^https?:\/\//i.test(url) ? url : `https://${url}`;
+            const sel = window.getSelection();
+            if (sel && sel.toString().trim()) {
+              execCommand('createLink', href);
+              // Make links open in new tab
+              if (editorRef.current) {
+                editorRef.current.querySelectorAll('a').forEach((a) => {
+                  a.setAttribute('target', '_blank');
+                  a.setAttribute('rel', 'noopener noreferrer');
+                });
+                onChange(editorRef.current.innerHTML);
+              }
+            } else {
+              document.execCommand(
+                'insertHTML',
+                false,
+                `<a href="${href}" target="_blank" rel="noopener noreferrer" style="color:#3B82F6;text-decoration:underline;">${href}</a>&nbsp;`
+              );
+              if (editorRef.current) onChange(editorRef.current.innerHTML);
+            }
+          }}
+          title="Insert Link"
+        >
+          <LinkIcon className="w-3.5 h-3.5" />
+        </Button>
 
         {/* Image Upload */}
         {enableImageUpload && (
