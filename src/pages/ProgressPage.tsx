@@ -25,6 +25,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { format, subDays } from 'date-fns';
 import { toast } from 'sonner';
+import { GATE_SUBJECTS, seedGateSubjects } from '@/lib/gateSubjects';
 import { 
   BarChart, 
   Bar, 
@@ -157,11 +158,15 @@ const ProgressPage: React.FC = () => {
   const fetchProgressData = async () => {
     if (!user) return;
 
+    // Ensure default GATE subjects exist for this user
+    await seedGateSubjects(user.id);
+
     // Fetch subjects
     const { data: subjectsData } = await supabase
       .from('subjects')
       .select('id, name, color')
-      .eq('user_id', user.id);
+      .eq('user_id', user.id)
+      .order('name');
 
     setSubjects((subjectsData || []).map(s => ({ id: s.id, name: s.name })));
 
