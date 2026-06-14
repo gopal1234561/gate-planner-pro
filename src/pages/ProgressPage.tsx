@@ -389,6 +389,61 @@ const ProgressPage: React.FC = () => {
               </GlassCard>
             </div>
 
+            {/* GATE CS Subject-wise Weightage */}
+            <GlassCard>
+              <h3 className="font-semibold mb-1 flex items-center gap-2">
+                <Target className="w-5 h-5 text-primary" />
+                GATE CS Subject-wise Weightage
+              </h3>
+              <p className="text-xs text-muted-foreground mb-4">
+                Approximate marks distribution in GATE CS paper, paired with your topic completion.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                {[...GATE_SUBJECTS].sort((a, b) => b.weightage - a.weightage).map(gs => {
+                  const userProg = subjectProgress.find(
+                    sp => sp.name.toLowerCase() === gs.name.toLowerCase()
+                  );
+                  const completionPct = userProg && userProg.total > 0
+                    ? Math.round((userProg.completed / userProg.total) * 100)
+                    : 0;
+                  return (
+                    <div key={gs.name} className="space-y-1.5">
+                      <div className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span
+                            className="w-2.5 h-2.5 rounded-full shrink-0"
+                            style={{ backgroundColor: gs.color }}
+                          />
+                          <span className="font-medium truncate">{gs.name}</span>
+                        </div>
+                        <span className="text-xs text-muted-foreground shrink-0 ml-2">
+                          ~{gs.weightage}% · {completionPct}% done
+                        </span>
+                      </div>
+                      <div className="relative h-2 rounded-full bg-muted overflow-hidden">
+                        {/* Weightage bar (background tint) */}
+                        <div
+                          className="absolute inset-y-0 left-0 opacity-30"
+                          style={{ width: `${gs.weightage * 5}%`, backgroundColor: gs.color }}
+                        />
+                        {/* Completion overlay */}
+                        <div
+                          className="absolute inset-y-0 left-0 rounded-full"
+                          style={{
+                            width: `${Math.min(completionPct, 100) * (gs.weightage * 5) / 100}%`,
+                            backgroundColor: gs.color,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="text-[10px] text-muted-foreground mt-4 italic">
+                * Weightage figures are indicative averages based on previous years. Bar width is scaled (×5) for visibility.
+              </p>
+            </GlassCard>
+
             {/* Monthly Chart */}
             <GlassCard>
               <h3 className="font-semibold mb-4 flex items-center gap-2">
