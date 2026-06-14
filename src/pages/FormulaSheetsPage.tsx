@@ -18,6 +18,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import FlashcardQuiz from '@/components/formulas/FlashcardQuiz';
+import { seedGateSubjects } from '@/lib/gateSubjects';
 
 interface FormulaSheet {
   id: string;
@@ -66,9 +67,10 @@ const FormulaSheetsPage: React.FC = () => {
 
   const fetchData = async () => {
     if (!user) return;
+    await seedGateSubjects(user.id);
     const [{ data: sheetsData }, { data: subjectsData }] = await Promise.all([
       supabase.from('formula_sheets').select('*').eq('user_id', user.id).order('is_favorite', { ascending: false }).order('updated_at', { ascending: false }),
-      supabase.from('subjects').select('*').eq('user_id', user.id),
+      supabase.from('subjects').select('*').eq('user_id', user.id).order('name'),
     ]);
     setSheets((sheetsData as any[]) || []);
     setSubjects((subjectsData as Subject[]) || []);

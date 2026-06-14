@@ -12,6 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
+import { seedGateSubjects } from '@/lib/gateSubjects';
 
 interface Note {
   id: string;
@@ -53,9 +54,10 @@ const NotesPage: React.FC = () => {
 
   const fetchData = async () => {
     if (!user) return;
+    await seedGateSubjects(user.id);
     const [{ data: notesData }, { data: subData }] = await Promise.all([
       supabase.from('notes').select('*').eq('user_id', user.id).order('updated_at', { ascending: false }),
-      supabase.from('subjects').select('*').eq('user_id', user.id),
+      supabase.from('subjects').select('*').eq('user_id', user.id).order('name'),
     ]);
     setNotes(notesData || []);
     setSubjects(subData || []);
