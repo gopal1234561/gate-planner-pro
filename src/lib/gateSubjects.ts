@@ -34,12 +34,22 @@ export async function seedGateSubjects(userId: string): Promise<void> {
     .select('name')
     .eq('user_id', userId);
 
-  const existingNames = new Set((existing || []).map((s: any) => s.name.toLowerCase()));
+  const existingNames = new Set(
+    (existing || []).map((s: any) => (s.name || '').trim().toLowerCase())
+  );
   const toInsert = GATE_SUBJECTS
     .filter(s => !existingNames.has(s.name.toLowerCase()))
     .map(s => ({ user_id: userId, name: s.name, color: s.color }));
 
-  if (toInsert.length > 0) {
-    await supabase.from('subjects').insert(toInsert);
-  }
+  if (toInsert.length === 0) return;
+
+  // Insert one-by-one and swallow unique-violation errors so concurrent calls
+  // from multiple pages (Notes / Formula / Progress mounting together) cannot
+  // create duplicates.
+  await Promise.all(
+    toInsert.map(row =>
+      supabase.from('subjects').insert(row).then(() => null, () => null)
+    )
+  );
 }
+
