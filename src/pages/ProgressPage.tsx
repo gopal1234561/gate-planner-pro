@@ -284,7 +284,8 @@ const ProgressPage: React.FC = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-6 max-w-5xl mx-auto w-full">
+
         <div>
           <h1 className="text-3xl font-bold">Progress</h1>
           <p className="text-muted-foreground">Track your study progress and analytics</p>
