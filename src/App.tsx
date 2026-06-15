@@ -89,6 +89,7 @@ const AppRoutes = () => {
       <Route path="/notes" element={<ProtectedRoute><NotesPage /></ProtectedRoute>} />
       <Route path="/formulas" element={<ProtectedRoute><FormulaSheetsPage /></ProtectedRoute>} />
       <Route path="/mistakes" element={<ProtectedRoute><MistakesPage /></ProtectedRoute>} />
+      <Route path="/pyqs" element={<ProtectedRoute><PYQsPage /></ProtectedRoute>} />
       
       
       {/* Catch-all */}
