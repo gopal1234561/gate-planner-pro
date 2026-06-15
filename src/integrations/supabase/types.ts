@@ -319,6 +319,59 @@ export type Database = {
           },
         ]
       }
+      pyqs: {
+        Row: {
+          created_at: string
+          explanation: string | null
+          id: string
+          image_url: string | null
+          is_favorite: boolean
+          question_text: string | null
+          source_link: string | null
+          subject_id: string | null
+          title: string
+          updated_at: string
+          user_id: string
+          year: number | null
+        }
+        Insert: {
+          created_at?: string
+          explanation?: string | null
+          id?: string
+          image_url?: string | null
+          is_favorite?: boolean
+          question_text?: string | null
+          source_link?: string | null
+          subject_id?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+          year?: number | null
+        }
+        Update: {
+          created_at?: string
+          explanation?: string | null
+          id?: string
+          image_url?: string | null
+          is_favorite?: boolean
+          question_text?: string | null
+          source_link?: string | null
+          subject_id?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+          year?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pyqs_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       study_plans: {
         Row: {
           created_at: string
