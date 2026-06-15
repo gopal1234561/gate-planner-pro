@@ -160,7 +160,7 @@ const NotesPage: React.FC = () => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input placeholder="Search notes by title or content..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10" />
           </div>
-          <div className="flex gap-2 overflow-x-auto pb-1">
+          <div className="flex flex-wrap gap-2">
             <button onClick={() => setFilterSubject('all')} className={`px-3 py-1.5 rounded-lg text-sm transition-all ${filterSubject === 'all' ? 'bg-primary text-primary-foreground' : 'bg-muted/50 text-muted-foreground hover:bg-muted'}`}>
               All
             </button>
