@@ -23,6 +23,7 @@ import AIStudyPlannerPage from "@/pages/AIStudyPlannerPage";
 import NotesPage from "@/pages/NotesPage";
 import FormulaSheetsPage from "@/pages/FormulaSheetsPage";
 import MistakesPage from "@/pages/MistakesPage";
+import PYQsPage from "@/pages/PYQsPage";
 
 import NotFound from "@/pages/NotFound";
 
