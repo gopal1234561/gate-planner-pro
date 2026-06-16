@@ -299,10 +299,6 @@ const ProgressPage: React.FC = () => {
     setLoading(false);
   };
 
-  const pieData = [
-    { name: 'Completed', value: totalStats.completedTopics, color: 'hsl(142, 76%, 36%)' },
-    { name: 'Remaining', value: totalStats.totalTopics - totalStats.completedTopics, color: 'hsl(var(--muted))' },
-  ];
 
   const overallProgress = totalStats.totalTopics > 0 
     ? (totalStats.completedTopics / totalStats.totalTopics) * 100 : 0;
