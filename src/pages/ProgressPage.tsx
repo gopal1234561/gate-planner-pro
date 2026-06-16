@@ -402,19 +402,69 @@ const ProgressPage: React.FC = () => {
               <GlassCard>
                 <h3 className="font-semibold mb-4">Overall Completion</h3>
                 <div className="h-64 flex items-center justify-center relative">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie data={pieData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
-                        {pieData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
-                  <div className="absolute text-center">
-                    <p className="text-3xl font-bold gradient-text">{overallProgress.toFixed(0)}%</p>
-                    <p className="text-sm text-muted-foreground">Complete</p>
+                  <svg width="200" height="200" viewBox="0 0 200 200" className="transform -rotate-90">
+                    <defs>
+                      <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="hsl(var(--primary))" />
+                        <stop offset="100%" stopColor="hsl(var(--secondary))" />
+                      </linearGradient>
+                      <filter id="glow">
+                        <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+                        <feMerge>
+                          <feMergeNode in="coloredBlur" />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
+                    </defs>
+                    {/* Background track */}
+                    <circle
+                      cx="100"
+                      cy="100"
+                      r="80"
+                      fill="none"
+                      stroke="hsl(var(--muted))"
+                      strokeWidth="12"
+                      strokeLinecap="round"
+                      opacity="0.3"
+                    />
+                    {/* Progress arc */}
+                    <motion.circle
+                      cx="100"
+                      cy="100"
+                      r="80"
+                      fill="none"
+                      stroke="url(#progressGradient)"
+                      strokeWidth="12"
+                      strokeLinecap="round"
+                      strokeDasharray={2 * Math.PI * 80}
+                      strokeDashoffset={2 * Math.PI * 80 * (1 - overallProgress / 100)}
+                      filter="url(#glow)"
+                      initial={{ strokeDashoffset: 2 * Math.PI * 80 }}
+                      animate={{ strokeDashoffset: 2 * Math.PI * 80 * (1 - overallProgress / 100) }}
+                      transition={{ duration: 1.2, ease: "easeOut" }}
+                    />
+                  </svg>
+                  <div className="absolute text-center flex flex-col items-center">
+                    <motion.p
+                      className="text-4xl font-bold gradient-text"
+                      key={overallProgress}
+                      initial={{ scale: 0.5, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      {overallProgress.toFixed(0)}%
+                    </motion.p>
+                    <p className="text-sm text-muted-foreground mt-1">Complete</p>
+                    <div className="flex items-center gap-3 mt-3 text-xs">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-primary" />
+                        <span className="text-muted-foreground">{totalStats.completedTopics} done</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-muted" />
+                        <span className="text-muted-foreground">{totalStats.totalTopics - totalStats.completedTopics} left</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </GlassCard>
