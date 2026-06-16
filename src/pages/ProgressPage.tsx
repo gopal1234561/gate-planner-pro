@@ -77,6 +77,7 @@ const ProgressPage: React.FC = () => {
     totalHours: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [plannerStats, setPlannerStats] = useState({ planned: 0, studied: 0, monthLabel: '' });
   const [logDate, setLogDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [logHours, setLogHours] = useState('');
   const [logSubject, setLogSubject] = useState<string>('none');
@@ -269,6 +270,35 @@ const ProgressPage: React.FC = () => {
 
     const totalHours = weekData.reduce((acc, d) => acc + d.hours, 0);
     setTotalStats({ totalTopics, completedTopics, totalTasks, completedTasks, totalHours });
+
+    // Planner: planned vs studied days for current month
+    const today = new Date();
+    const y = today.getFullYear();
+    const m = today.getMonth();
+    const monthStart = format(new Date(y, m, 1), 'yyyy-MM-dd');
+    const monthEnd = format(new Date(y, m + 1, 0), 'yyyy-MM-dd');
+    const [{ data: planned }, { data: studiedSessions }] = await Promise.all([
+      (supabase as any)
+        .from('planner_dates')
+        .select('selected_date, is_selected')
+        .eq('user_id', user.id)
+        .eq('is_selected', true)
+        .gte('selected_date', monthStart)
+        .lte('selected_date', monthEnd),
+      supabase
+        .from('study_sessions')
+        .select('session_date')
+        .eq('user_id', user.id)
+        .gte('session_date', monthStart)
+        .lte('session_date', monthEnd),
+    ]);
+    const studiedSet = new Set((studiedSessions || []).map((s: any) => s.session_date));
+    setPlannerStats({
+      planned: (planned || []).length,
+      studied: studiedSet.size,
+      monthLabel: format(today, 'MMMM yyyy'),
+    });
+
     setLoading(false);
   };
 
@@ -443,6 +473,44 @@ const ProgressPage: React.FC = () => {
               <p className="text-[10px] text-muted-foreground mt-4 italic">
                 * Weightage figures are indicative averages based on previous years. Bar width is scaled (×5) for visibility.
               </p>
+            </GlassCard>
+
+            {/* Monthly Planner vs Studied */}
+            <GlassCard>
+              <h3 className="font-semibold mb-1 flex items-center gap-2">
+                <CalendarDays className="w-5 h-5 text-primary" />
+                Monthly Planner — {plannerStats.monthLabel}
+              </h3>
+              <p className="text-xs text-muted-foreground mb-4">
+                Days you committed to in the Monthly Planner vs days you actually studied.
+              </p>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="rounded-xl border border-border p-4 text-center">
+                  <p className="text-xs text-muted-foreground">Planned</p>
+                  <p className="text-2xl font-bold gradient-text">{plannerStats.planned}</p>
+                </div>
+                <div className="rounded-xl border border-border p-4 text-center">
+                  <p className="text-xs text-muted-foreground">Studied</p>
+                  <p className="text-2xl font-bold gradient-text">{plannerStats.studied}</p>
+                </div>
+                <div className="rounded-xl border border-border p-4 text-center">
+                  <p className="text-xs text-muted-foreground">Adherence</p>
+                  <p className="text-2xl font-bold gradient-text">
+                    {plannerStats.planned > 0
+                      ? Math.round((plannerStats.studied / plannerStats.planned) * 100)
+                      : 0}%
+                  </p>
+                </div>
+              </div>
+              <div className="mt-4">
+                <Progress
+                  value={
+                    plannerStats.planned > 0
+                      ? Math.min((plannerStats.studied / plannerStats.planned) * 100, 100)
+                      : 0
+                  }
+                />
+              </div>
             </GlassCard>
 
             {/* Monthly Chart */}
