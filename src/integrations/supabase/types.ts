@@ -221,6 +221,30 @@ export type Database = {
           },
         ]
       }
+      planner_dates: {
+        Row: {
+          created_at: string
+          id: string
+          is_selected: boolean
+          selected_date: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_selected?: boolean
+          selected_date: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_selected?: boolean
+          selected_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

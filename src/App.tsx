@@ -24,6 +24,7 @@ import NotesPage from "@/pages/NotesPage";
 import FormulaSheetsPage from "@/pages/FormulaSheetsPage";
 import MistakesPage from "@/pages/MistakesPage";
 import PYQsPage from "@/pages/PYQsPage";
+import MonthlyPlannerPage from "@/pages/MonthlyPlannerPage";
 
 import NotFound from "@/pages/NotFound";
 
@@ -90,6 +91,7 @@ const AppRoutes = () => {
       <Route path="/formulas" element={<ProtectedRoute><FormulaSheetsPage /></ProtectedRoute>} />
       <Route path="/mistakes" element={<ProtectedRoute><MistakesPage /></ProtectedRoute>} />
       <Route path="/pyqs" element={<ProtectedRoute><PYQsPage /></ProtectedRoute>} />
+      <Route path="/monthly-planner" element={<ProtectedRoute><MonthlyPlannerPage /></ProtectedRoute>} />
       
       
       {/* Catch-all */}

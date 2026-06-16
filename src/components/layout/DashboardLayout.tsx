@@ -24,6 +24,7 @@ import {
   FlaskConical,
   AlertCircle,
   FileQuestion,
+  CalendarCheck,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CountdownTimer } from '@/components/CountdownTimer';
@@ -38,6 +39,7 @@ const navItems = [
   { icon: BookOpen, label: 'Subjects', path: '/subjects' },
   { icon: CheckSquare, label: 'Tasks', path: '/tasks' },
   { icon: Calendar, label: 'Calendar', path: '/calendar' },
+  { icon: CalendarCheck, label: 'Monthly Planner', path: '/monthly-planner' },
   { icon: RefreshCw, label: 'Revisions', path: '/revisions' },
   { icon: FileText, label: 'Mock Tests', path: '/mock-tests' },
   { icon: StickyNote, label: 'Notes', path: '/notes' },
