@@ -55,13 +55,6 @@ const DashboardPage: React.FC = () => {
       .eq('user_id', user.id)
       .eq('task_date', today);
 
-    // Fetch all tasks for completion rate
-    const { data: allTasks } = await supabase
-      .from('tasks')
-      .select('*')
-      .eq('user_id', user.id)
-      .limit(5)
-      .order('created_at', { ascending: false });
 
     // Fetch subjects count
     const { count: subjectsCount } = await supabase
