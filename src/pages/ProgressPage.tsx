@@ -366,6 +366,55 @@ const ProgressPage: React.FC = () => {
               </GlassCard>
             </div>
 
+            {/* Subject Breakdown */}
+            <GlassCard>
+              <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                <h3 className="font-semibold flex items-center gap-2">
+                  <BookOpen className="w-5 h-5 text-primary" />
+                  Subject-wise Breakdown
+                </h3>
+                <span className="text-xs text-muted-foreground">{plannerStats.monthLabel}</span>
+              </div>
+              {subjectProgress.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-6">No subjects with topics yet.</p>
+              ) : (
+                <div className="space-y-4">
+                  {subjectProgress.map((s) => {
+                    const pct = s.total > 0 ? (s.completed / s.total) * 100 : 0;
+                    return (
+                      <div key={s.name} className="space-y-1.5">
+                        <div className="flex items-center justify-between text-sm gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: s.color }} />
+                            <span className="font-medium truncate">{s.name}</span>
+                          </div>
+                          <div className="flex items-center gap-3 shrink-0">
+                            <span className="text-muted-foreground text-xs">{s.completed}/{s.total} topics</span>
+                            <span className="font-semibold tabular-nums">{pct.toFixed(0)}%</span>
+                          </div>
+                        </div>
+                        <div className="h-2 rounded-full bg-muted overflow-hidden">
+                          <motion.div
+                            className="h-full rounded-full"
+                            style={{ background: `linear-gradient(90deg, ${s.color}, ${s.color}aa)` }}
+                            initial={{ width: 0 }}
+                            animate={{ width: `${pct}%` }}
+                            transition={{ duration: 1, ease: 'easeOut' }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                  <div className="pt-3 mt-2 border-t border-border/50 flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Overall</span>
+                    <span className="font-semibold">
+                      {totalStats.completedTopics}/{totalStats.totalTopics} topics · {overallProgress.toFixed(0)}%
+                    </span>
+                  </div>
+                </div>
+              )}
+            </GlassCard>
+
             {/* Charts */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <GlassCard>
