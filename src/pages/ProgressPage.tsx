@@ -826,40 +826,6 @@ const ProgressPage: React.FC = () => {
               </AnimatePresence>
             </GlassCard>
 
-            {/* Subject-wise Progress */}
-            <GlassCard>
-              <h3 className="font-semibold mb-6">Subject-wise Progress</h3>
-              {subjectProgress.length > 0 ? (
-                <div className="space-y-6">
-                  {subjectProgress.map((subject, index) => {
-                    const progress = (subject.completed / subject.total) * 100;
-                    return (
-                      <motion.div
-                        key={subject.name}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.1 }}
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: subject.color }} />
-                            <span className="font-medium">{subject.name}</span>
-                          </div>
-                          <span className="text-sm text-muted-foreground">
-                            {subject.completed}/{subject.total} topics ({progress.toFixed(0)}%)
-                          </span>
-                        </div>
-                        <Progress value={progress} className="h-3" />
-                      </motion.div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <p className="text-muted-foreground text-center py-8">
-                  Add subjects and topics to see your progress
-                </p>
-              )}
-            </GlassCard>
           </>
         )}
       </div>
