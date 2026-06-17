@@ -524,7 +524,7 @@ const ProgressPage: React.FC = () => {
                             <span className="font-semibold tabular-nums">{pct.toFixed(0)}%</span>
                           </div>
                         </div>
-                        <div className="h-2 rounded-full bg-muted overflow-hidden">
+                        <div className="h-4 rounded-full bg-muted overflow-hidden">
                           <motion.div
                             className="h-full rounded-full"
                             style={{ background: `linear-gradient(90deg, ${s.color}, ${s.color}aa)` }}
