@@ -35,9 +35,7 @@ const DashboardPage: React.FC = () => {
     studyHours: 0,
     streak: 0,
   });
-  const [recentTasks, setRecentTasks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (user) {
