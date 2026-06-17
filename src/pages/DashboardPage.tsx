@@ -6,18 +6,14 @@ import {
   Target, 
   TrendingUp,
   BookOpen,
-  Calendar,
   Flame,
-  ArrowRight,
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { GlassCard } from '@/components/ui/GlassCard';
-import { GradientButton } from '@/components/ui/GradientButton';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { format } from 'date-fns';
 import { Progress } from '@/components/ui/progress';
-import { useNavigate } from 'react-router-dom';
 
 import { DailyReminders } from '@/components/DailyReminders';
 import { MotivationalCard } from '@/components/dashboard/MotivationalCard';
@@ -39,9 +35,7 @@ const DashboardPage: React.FC = () => {
     studyHours: 0,
     streak: 0,
   });
-  const [recentTasks, setRecentTasks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (user) {
@@ -61,13 +55,6 @@ const DashboardPage: React.FC = () => {
       .eq('user_id', user.id)
       .eq('task_date', today);
 
-    // Fetch all tasks for completion rate
-    const { data: allTasks } = await supabase
-      .from('tasks')
-      .select('*')
-      .eq('user_id', user.id)
-      .limit(5)
-      .order('created_at', { ascending: false });
 
     // Fetch subjects count
     const { count: subjectsCount } = await supabase
@@ -92,8 +79,6 @@ const DashboardPage: React.FC = () => {
       studyHours: Math.round(totalMinutes / 60 * 10) / 10,
       streak: 7, // Calculate actual streak later
     });
-
-    setRecentTasks(allTasks || []);
 
     setLoading(false);
   };
@@ -193,43 +178,6 @@ const DashboardPage: React.FC = () => {
             </div>
           </GlassCard>
         </div>
-
-        {/* Recent Tasks */}
-        <GlassCard delay={0.6}>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-primary" />
-              Recent Tasks
-            </h3>
-            <GradientButton size="sm" onClick={() => navigate('/tasks')}>
-              View All <ArrowRight className="w-4 h-4 ml-1" />
-            </GradientButton>
-          </div>
-          {recentTasks.length > 0 ? (
-            <div className="space-y-3">
-              {recentTasks.map((task) => (
-                <div
-                  key={task.id}
-                  className="flex items-center justify-between p-3 rounded-lg bg-muted/50"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-3 h-3 rounded-full ${task.is_completed ? 'bg-green-500' : 'bg-orange-500'}`} />
-                    <span className={task.is_completed ? 'line-through text-muted-foreground' : ''}>
-                      {task.title}
-                    </span>
-                  </div>
-                  <span className="text-xs text-muted-foreground">
-                    {format(new Date(task.created_at), 'MMM d')}
-                  </span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-muted-foreground text-center py-8">
-              No tasks yet. Start by adding your first task!
-            </p>
-          )}
-        </GlassCard>
 
         {/* Motivational Quote */}
         <MotivationalCard />
