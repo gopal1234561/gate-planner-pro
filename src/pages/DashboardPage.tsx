@@ -179,43 +179,6 @@ const DashboardPage: React.FC = () => {
           </GlassCard>
         </div>
 
-        {/* Recent Tasks */}
-        <GlassCard delay={0.6}>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-primary" />
-              Recent Tasks
-            </h3>
-            <GradientButton size="sm" onClick={() => navigate('/tasks')}>
-              View All <ArrowRight className="w-4 h-4 ml-1" />
-            </GradientButton>
-          </div>
-          {recentTasks.length > 0 ? (
-            <div className="space-y-3">
-              {recentTasks.map((task) => (
-                <div
-                  key={task.id}
-                  className="flex items-center justify-between p-3 rounded-lg bg-muted/50"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-3 h-3 rounded-full ${task.is_completed ? 'bg-green-500' : 'bg-orange-500'}`} />
-                    <span className={task.is_completed ? 'line-through text-muted-foreground' : ''}>
-                      {task.title}
-                    </span>
-                  </div>
-                  <span className="text-xs text-muted-foreground">
-                    {format(new Date(task.created_at), 'MMM d')}
-                  </span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-muted-foreground text-center py-8">
-              No tasks yet. Start by adding your first task!
-            </p>
-          )}
-        </GlassCard>
-
         {/* Motivational Quote */}
         <MotivationalCard />
 
