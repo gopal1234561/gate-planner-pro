@@ -6,18 +6,14 @@ import {
   Target, 
   TrendingUp,
   BookOpen,
-  Calendar,
   Flame,
-  ArrowRight,
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { GlassCard } from '@/components/ui/GlassCard';
-import { GradientButton } from '@/components/ui/GradientButton';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { format } from 'date-fns';
 import { Progress } from '@/components/ui/progress';
-import { useNavigate } from 'react-router-dom';
 
 import { DailyReminders } from '@/components/DailyReminders';
 import { MotivationalCard } from '@/components/dashboard/MotivationalCard';
