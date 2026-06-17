@@ -80,8 +80,6 @@ const DashboardPage: React.FC = () => {
       streak: 7, // Calculate actual streak later
     });
 
-    setRecentTasks(allTasks || []);
-
     setLoading(false);
   };
 
