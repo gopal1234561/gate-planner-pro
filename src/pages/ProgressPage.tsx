@@ -395,71 +395,105 @@ const ProgressPage: React.FC = () => {
               <GlassCard>
                 <h3 className="font-semibold mb-4">Overall Completion</h3>
                 <div className="h-64 flex items-center justify-center relative">
-                  <svg width="200" height="200" viewBox="0 0 200 200" className="transform -rotate-90">
-                    <defs>
-                      <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="hsl(var(--primary))" />
-                        <stop offset="100%" stopColor="hsl(var(--secondary))" />
-                      </linearGradient>
-                      <filter id="glow">
-                        <feGaussianBlur stdDeviation="3" result="coloredBlur" />
-                        <feMerge>
-                          <feMergeNode in="coloredBlur" />
-                          <feMergeNode in="SourceGraphic" />
-                        </feMerge>
-                      </filter>
-                    </defs>
-                    {/* Background track */}
-                    <circle
-                      cx="100"
-                      cy="100"
-                      r="80"
-                      fill="none"
-                      stroke="hsl(var(--muted))"
-                      strokeWidth="12"
-                      strokeLinecap="round"
-                      opacity="0.3"
-                    />
-                    {/* Progress arc */}
-                    <motion.circle
-                      cx="100"
-                      cy="100"
-                      r="80"
-                      fill="none"
-                      stroke="url(#progressGradient)"
-                      strokeWidth="12"
-                      strokeLinecap="round"
-                      strokeDasharray={2 * Math.PI * 80}
-                      strokeDashoffset={2 * Math.PI * 80 * (1 - overallProgress / 100)}
-                      filter="url(#glow)"
-                      initial={{ strokeDashoffset: 2 * Math.PI * 80 }}
-                      animate={{ strokeDashoffset: 2 * Math.PI * 80 * (1 - overallProgress / 100) }}
-                      transition={{ duration: 1.2, ease: "easeOut" }}
-                    />
-                  </svg>
-                  <div className="absolute text-center flex flex-col items-center">
-                    <motion.p
-                      className="text-4xl font-bold gradient-text"
-                      key={overallProgress}
-                      initial={{ scale: 0.5, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ duration: 0.5 }}
-                    >
-                      {overallProgress.toFixed(0)}%
-                    </motion.p>
-                    <p className="text-sm text-muted-foreground mt-1">Complete</p>
-                    <div className="flex items-center gap-3 mt-3 text-xs">
-                      <div className="flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-primary" />
-                        <span className="text-muted-foreground">{totalStats.completedTopics} done</span>
+                  {totalStats.totalTopics > 0 ? (
+                    <>
+                      <svg width="220" height="220" viewBox="0 0 220 220" className="transform -rotate-90">
+                        <defs>
+                          <filter id="glow">
+                            <feGaussianBlur stdDeviation="2.5" result="coloredBlur" />
+                            <feMerge>
+                              <feMergeNode in="coloredBlur" />
+                              <feMergeNode in="SourceGraphic" />
+                            </feMerge>
+                          </filter>
+                        </defs>
+                        {(() => {
+                          const radius = 82;
+                          const circumference = 2 * Math.PI * radius;
+                          let currentOffset = 0;
+                          const gap = 3; // pixel gap between segments
+                          const totalGap = gap * subjectProgress.length;
+                          const availableCircumference = Math.max(circumference - totalGap, 0);
+                          const totalTopicsAll = subjectProgress.reduce((sum, s) => sum + s.total, 0);
+                          return subjectProgress.map((s) => {
+                            const segmentLength = totalTopicsAll > 0
+                              ? (s.total / totalTopicsAll) * availableCircumference
+                              : 0;
+                            const completedLength = totalTopicsAll > 0
+                              ? (s.completed / totalTopicsAll) * availableCircumference
+                              : 0;
+                            const rotation = (currentOffset / circumference) * 360;
+                            currentOffset += segmentLength + gap;
+                            return (
+                              <g key={s.name} transform={`rotate(${rotation} 110 110)`}>
+                                {/* Background track */}
+                                <circle
+                                  cx="110" cy="110" r={radius}
+                                  fill="none"
+                                  stroke="hsl(var(--muted))"
+                                  strokeWidth="18"
+                                  strokeDasharray={`${segmentLength} ${circumference}`}
+                                  opacity="0.25"
+                                />
+                                {/* Completed arc */}
+                                <motion.circle
+                                  cx="110" cy="110" r={radius}
+                                  fill="none"
+                                  stroke={s.color}
+                                  strokeWidth="18"
+                                  strokeDasharray={`${completedLength} ${circumference}`}
+                                  strokeLinecap="round"
+                                  filter="url(#glow)"
+                                  initial={{ strokeDashoffset: segmentLength }}
+                                  animate={{ strokeDashoffset: 0 }}
+                                  transition={{ duration: 1.2, ease: "easeOut" }}
+                                />
+                              </g>
+                            );
+                          });
+                        })()}
+                        {/* Inner circle for donut hole */}
+                        <circle cx="110" cy="110" r="58" fill="hsl(var(--card))" />
+                      </svg>
+                      <div className="absolute text-center flex flex-col items-center">
+                        <motion.p
+                          className="text-4xl font-bold gradient-text"
+                          key={overallProgress}
+                          initial={{ scale: 0.5, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          transition={{ duration: 0.5 }}
+                        >
+                          {overallProgress.toFixed(0)}%
+                        </motion.p>
+                        <p className="text-sm text-muted-foreground mt-1">Complete</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {totalStats.completedTopics}/{totalStats.totalTopics} topics
+                        </p>
                       </div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-muted" />
-                        <span className="text-muted-foreground">{totalStats.totalTopics - totalStats.completedTopics} left</span>
-                      </div>
+                    </>
+                  ) : (
+                    <div className="text-center">
+                      <p className="text-4xl font-bold gradient-text">0%</p>
+                      <p className="text-sm text-muted-foreground mt-1">Add subjects to track</p>
                     </div>
-                  </div>
+                  )}
                 </div>
+                {/* Subject legend */}
+                {subjectProgress.length > 0 && (
+                  <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 mt-2">
+                    {subjectProgress.map((s) => {
+                      const pct = s.total > 0 ? (s.completed / s.total) * 100 : 0;
+                      return (
+                        <div key={s.name} className="flex items-center gap-1.5">
+                          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: s.color }} />
+                          <span className="text-xs text-muted-foreground">
+                            {s.name} {pct.toFixed(0)}%
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </GlassCard>
             </div>
 
