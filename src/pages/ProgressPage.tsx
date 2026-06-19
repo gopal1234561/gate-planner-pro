@@ -14,7 +14,9 @@ import {
   Pencil,
   X,
   Check,
+  Flame,
 } from 'lucide-react';
+import { StreakHeatmap } from '@/components/progress/StreakHeatmap';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Progress } from '@/components/ui/progress';
@@ -75,6 +77,7 @@ const ProgressPage: React.FC = () => {
   });
   const [loading, setLoading] = useState(true);
   const [plannerStats, setPlannerStats] = useState({ planned: 0, studied: 0, monthLabel: '' });
+  const [heatmapData, setHeatmapData] = useState<Record<string, number>>({});
   const [logDate, setLogDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [logHours, setLogHours] = useState('');
   const [logSubject, setLogSubject] = useState<string>('none');
@@ -264,6 +267,16 @@ const ProgressPage: React.FC = () => {
     }));
 
     setDailyRecords(records);
+
+    // Build heatmap data (date -> minutes) from all sessions
+    const heatmap: Record<string, number> = {};
+    (allSessions || []).forEach(s => {
+      if (s.session_date) {
+        heatmap[s.session_date] = (heatmap[s.session_date] || 0) + s.duration_minutes;
+      }
+    });
+    setHeatmapData(heatmap);
+
 
     const totalHours = weekData.reduce((acc, d) => acc + d.hours, 0);
     setTotalStats({ totalTopics, completedTopics, totalTasks, completedTasks, totalHours });
@@ -601,43 +614,21 @@ const ProgressPage: React.FC = () => {
               </p>
             </GlassCard>
 
-            {/* Monthly Planner vs Studied */}
+            {/* Study Streak Heatmap */}
             <GlassCard>
-              <h3 className="font-semibold mb-1 flex items-center gap-2">
-                <CalendarDays className="w-5 h-5 text-primary" />
-                Monthly Planner — {plannerStats.monthLabel}
-              </h3>
+              <div className="flex items-center justify-between mb-1 flex-wrap gap-2">
+                <h3 className="font-semibold flex items-center gap-2">
+                  <Flame className="w-5 h-5 text-orange-500" />
+                  Study Streak
+                </h3>
+                <span className="text-xs text-muted-foreground">Last 6 months</span>
+              </div>
               <p className="text-xs text-muted-foreground mb-4">
-                Days you committed to in the Monthly Planner vs days you actually studied.
+                Each square is a day. Greener = more hours studied.
               </p>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="rounded-xl border border-border p-4 text-center">
-                  <p className="text-xs text-muted-foreground">Planned</p>
-                  <p className="text-2xl font-bold gradient-text">{plannerStats.planned}</p>
-                </div>
-                <div className="rounded-xl border border-border p-4 text-center">
-                  <p className="text-xs text-muted-foreground">Studied</p>
-                  <p className="text-2xl font-bold gradient-text">{plannerStats.studied}</p>
-                </div>
-                <div className="rounded-xl border border-border p-4 text-center">
-                  <p className="text-xs text-muted-foreground">Adherence</p>
-                  <p className="text-2xl font-bold gradient-text">
-                    {plannerStats.planned > 0
-                      ? Math.round((plannerStats.studied / plannerStats.planned) * 100)
-                      : 0}%
-                  </p>
-                </div>
-              </div>
-              <div className="mt-4">
-                <Progress
-                  value={
-                    plannerStats.planned > 0
-                      ? Math.min((plannerStats.studied / plannerStats.planned) * 100, 100)
-                      : 0
-                  }
-                />
-              </div>
+              <StreakHeatmap data={heatmapData} weeks={26} />
             </GlassCard>
+
 
             {/* Monthly Chart */}
             <GlassCard>
