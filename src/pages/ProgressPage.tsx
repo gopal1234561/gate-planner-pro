@@ -14,7 +14,9 @@ import {
   Pencil,
   X,
   Check,
+  Flame,
 } from 'lucide-react';
+import { StreakHeatmap } from '@/components/progress/StreakHeatmap';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Progress } from '@/components/ui/progress';
