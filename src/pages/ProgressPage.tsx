@@ -77,6 +77,7 @@ const ProgressPage: React.FC = () => {
   });
   const [loading, setLoading] = useState(true);
   const [plannerStats, setPlannerStats] = useState({ planned: 0, studied: 0, monthLabel: '' });
+  const [heatmapData, setHeatmapData] = useState<Record<string, number>>({});
   const [logDate, setLogDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [logHours, setLogHours] = useState('');
   const [logSubject, setLogSubject] = useState<string>('none');
