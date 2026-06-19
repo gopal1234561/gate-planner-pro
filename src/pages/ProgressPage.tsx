@@ -268,6 +268,16 @@ const ProgressPage: React.FC = () => {
 
     setDailyRecords(records);
 
+    // Build heatmap data (date -> minutes) from all sessions
+    const heatmap: Record<string, number> = {};
+    (allSessions || []).forEach(s => {
+      if (s.session_date) {
+        heatmap[s.session_date] = (heatmap[s.session_date] || 0) + s.duration_minutes;
+      }
+    });
+    setHeatmapData(heatmap);
+
+
     const totalHours = weekData.reduce((acc, d) => acc + d.hours, 0);
     setTotalStats({ totalTopics, completedTopics, totalTasks, completedTasks, totalHours });
 
